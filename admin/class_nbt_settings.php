@@ -200,7 +200,8 @@ class NBT_Settings {
             }
 
             update_option('nbt_locations', $locations);
-            wp_send_json_success(['success' => true]);
+            $current_default = get_option('nbt_default_location', '');
+            wp_send_json_success(['success' => true, 'default_location' => $current_default]);
             return;
         }
 

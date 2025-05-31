@@ -76,10 +76,9 @@ jQuery(document).ready(function($) {
                                 $defaultSelect.append('<option value="'+loc.location+'">'+loc.location+'</option>');
                             }
                         });
-                        // Keep the previously selected default if possible
-                        var prevDefault = $defaultSelect.data('prev');
-                        if(prevDefault) {
-                            $defaultSelect.val(prevDefault);
+                        // Set the correct default location as selected
+                        if (response.data && response.data.default_location) {
+                            $defaultSelect.val(response.data.default_location);
                         }
                     }
                 } else {
