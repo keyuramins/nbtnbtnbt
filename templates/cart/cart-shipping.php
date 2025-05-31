@@ -24,12 +24,27 @@ $has_calculated_shipping  = ! empty( $has_calculated_shipping );
 $show_shipping_calculator = ! empty( $show_shipping_calculator );
 $calculator_text          = '';
 $current_locations = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
-  $default_location = get_default_location();
+$default_location = get_default_location();
 $nbt_locations = get_option('nbt_locations', []);
+$selected_address = '';
+$selected_location = $current_locations;
+foreach ($nbt_locations as $loc) {
+    if (strtolower($loc['location']) === strtolower($selected_location)) {
+        $selected_address = $loc['address'];
+        break;
+    }
+}
+$default_location_label = '';
+foreach ($nbt_locations as $loc) {
+    if (strtolower($loc['location']) === strtolower($default_location)) {
+        $default_location_label = $loc['location'];
+        break;
+    }
+}
 
 ?>
 <tr class="woocommerce-shipping-totals shipping">
-	<th>Pickup Location</th>
+	<th>Pickup Location: <?php echo esc_html($default_location_label); ?></th>
 	<td data-title="Pickup Location">
 		<?php if ( ! empty( $available_methods ) && is_array( $available_methods ) ) : ?>
 			<ul id="shipping_method" class="woocommerce-shipping-methods">
@@ -48,7 +63,7 @@ $nbt_locations = get_option('nbt_locations', []);
 						}
 						
 						 $ll = wc_cart_totals_shipping_method_label( $method );
-							printf( '<label for="shipping_method_%1$s_%2$s">%3$s</label>', $index, esc_attr( sanitize_title( $method->id ) ), preg_replace('/\((.*?)\)/', '$1', $ll)); // WPCS: XSS ok.
+							printf( '<label for="shipping_method_%1$s_%2$s">%3$s</label>', $index, esc_attr( sanitize_title( $method->id ) ), esc_html($selected_address));
 						do_action( 'woocommerce_after_shipping_rate', $method, $index );
 						
 						}
