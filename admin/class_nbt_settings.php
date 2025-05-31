@@ -182,13 +182,26 @@ class NBT_Settings {
         check_ajax_referer('nbt_save_location_nonce', 'nonce');
 
         if (!empty($_POST['locations']) && is_array($_POST['locations'])) {
-           
-            
-               
-                update_option('nbt_locations', $_POST['locations']);
+            $locations = $_POST['locations'];
+            $default_location = get_option('nbt_default_location', '');
+            $old_locations = get_option('nbt_locations', []);
 
-                wp_send_json_success(['success' => true]);
-            
+            // If the default location's name is changed, update the default location value to match the new name
+            foreach ($old_locations as $old) {
+                if ($old['location'] === $default_location) {
+                    foreach ($locations as $loc) {
+                        if ($old['location'] !== $loc['location'] && $old['address'] === $loc['address'] && $old['email'] === $loc['email']) {
+                            // Name changed for the default location
+                            update_option('nbt_default_location', $loc['location']);
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            update_option('nbt_locations', $locations);
+            wp_send_json_success(['success' => true]);
+            return;
         }
 
         wp_send_json_error('Invalid request.');
@@ -200,6 +213,24 @@ class NBT_Settings {
         if (isset($_POST['location'])) {
             $location_name = sanitize_text_field($_POST['location']);  // Sanitize the input
             $locations = get_option('nbt_locations', []);  // Fetch all locations
+            $default_location = get_option('nbt_default_location', '');
+
+            // Count locations
+            $location_count = count($locations);
+
+            // If only one location, allow deletion and clear default
+            if ($location_count === 1 && $locations[0]['location'] === $location_name) {
+                update_option('nbt_locations', []);
+                update_option('nbt_default_location', '');
+                wp_send_json_success();
+                return;
+            }
+
+            // Prevent deletion if this is the default location and more than one location exists
+            if ($default_location === $location_name && $location_count > 1) {
+                wp_send_json_error('Cannot delete the default location. Please change the default location first.');
+                return;
+            }
 
             // Loop through the locations and find the index of the location to remove
             foreach ($locations as $index => $details) {
