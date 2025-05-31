@@ -223,43 +223,4 @@ jQuery(document).ready(function($) {
             });
         }
     });
-
-    // Sync from WooCommerce Local Pickup
-    $('#sync-wc-pickup-locations').on('click', function(e) {
-        e.preventDefault();
-        var $btn = $(this);
-        var $msg = $('#sync-wc-pickup-locations-msg');
-        $btn.prop('disabled', true);
-        $msg.html('<span class="nbt-sync-spinner">&#8635; Syncing...</span>');
-        var dots = 0;
-        var interval = setInterval(function() {
-            dots = (dots + 1) % 4;
-            $msg.find('.nbt-sync-spinner').html('&#8635; Syncing' + '.'.repeat(dots));
-        }, 400);
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'sync_wc_pickup_locations'
-            },
-            success: function(response) {
-                clearInterval(interval);
-                if (response.success) {
-                    $msg.html('<span style="color:green;">' + response.data + '</span>');
-                    setTimeout(function(){ $msg.fadeOut(); }, 6000);
-                    location.reload();
-                } else {
-                    $msg.html('<span style="color:red;">' + (response.data || 'Sync failed.') + '</span>');
-                    setTimeout(function(){ $msg.fadeOut(); }, 6000);
-                }
-                $btn.prop('disabled', false);
-            },
-            error: function() {
-                clearInterval(interval);
-                $msg.html('<span style="color:red;">Sync failed.</span>');
-                setTimeout(function(){ $msg.fadeOut(); }, 6000);
-                $btn.prop('disabled', false);
-            }
-        });
-    });
 });

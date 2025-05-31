@@ -835,6 +835,7 @@ class nbtPublic{
 		add_filter('woocommerce_email_headers', 'add_cc_bcc_to_on_hold_order_emails', 10, 3);
 		add_filter('woocommerce_cart_item_name', [$this, 'remove_description_from_cart'], 50, 3);
 		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
+		add_action('woocommerce_review_order_before_payment', [$this, 'show_pickup_details_checkout'], 10);
 		
 	}	
 
@@ -888,5 +889,25 @@ class nbtPublic{
         }
         </style>
         <?php
+    }
+
+    public function show_pickup_details_checkout() {
+        $current_location = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
+        $nbt_locations = get_option('nbt_locations', []);
+        $pickup_name = '';
+        $pickup_address = '';
+        foreach ($nbt_locations as $loc) {
+            if (strtolower($loc['location']) === strtolower($current_location)) {
+                $pickup_name = $loc['location'];
+                $pickup_address = $loc['address'];
+                break;
+            }
+        }
+        if ($pickup_name && $pickup_address) {
+            echo '<div class="nbt-pickup-details-checkout" style="margin-bottom:20px;padding:15px;border:1px solid #eee;background:#fafafa;">';
+            echo '<strong>Pickup Location:</strong> ' . esc_html($pickup_name) . '<br />';
+            echo '<strong>Address:</strong> ' . esc_html($pickup_address);
+            echo '</div>';
+        }
     }
 }

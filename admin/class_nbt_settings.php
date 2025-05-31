@@ -18,7 +18,6 @@ class NBT_Settings {
         add_action('wp_ajax_edit_nbt_location', [$this, 'edit_nbt_location']);
         add_action('wp_ajax_remove_nbt_location', [$this, 'remove_nbt_location']);
         add_action('wp_ajax_save_nbt_default_location', [$this, 'save_nbt_default_location']);
-        add_action('wp_ajax_sync_wc_pickup_locations', [$this, 'sync_wc_pickup_locations']);
         // Add settings page
         add_action('admin_menu', [$this, 'add_admin_menu']);
         
@@ -40,17 +39,18 @@ class NBT_Settings {
     public function render_settings_page() {
         // Get locations and default location
         $locations = get_option('nbt_locations', []);
-        $default_location = get_option('nbt_default_location', '');
-        if($default_location == '' && !empty($locations)){
+       
+
+         $default_location = get_option('nbt_default_location', '');
+        if($default_location == ''){
             update_option('nbt_default_location', $locations[0]['location']);
             $default_location = $locations[0]['location'];
+
         }
         // Render HTML
         ?>
         <div class="wrap">
             <h1>NBT Product Locations</h1>
-            <button id="sync-wc-pickup-locations" class="button button-secondary" style="margin-bottom: 20px;">Sync from WooCommerce Local Pickup</button>
-            <div id="sync-wc-pickup-locations-msg"></div>
             <h2>Manage Locations</h2>
             <form id="location-form">
             <table id="location-table" class="wp-list-table widefat fixed striped">
@@ -330,87 +330,7 @@ class NBT_Settings {
         }
     }
 
-    public function sync_wc_pickup_locations() {
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error('Permission denied');
-        }
-        // Fetch all shipping zones
-        $zones = WC_Shipping_Zones::get_zones();
-        $wc_pickup_locations = [];
-        foreach ($zones as $zone) {
-            foreach ($zone['shipping_methods'] as $method) {
-                if ($method->id === 'local_pickup' && $method->enabled === 'yes') {
-                    $title = $method->get_option('title', '');
-                    $address = $method->get_option('pickup_address', '');
-                    $email = $method->get_option('pickup_email', '');
-                    if ($title && $address) {
-                        $wc_pickup_locations[strtolower($title)] = [
-                            'location' => $title,
-                            'address' => $address,
-                            'email' => $email,
-                        ];
-                    }
-                }
-            }
-        }
-        // Also check the default zone
-        $default_zone = new WC_Shipping_Zone(0);
-        foreach ($default_zone->get_shipping_methods() as $method) {
-            if ($method->id === 'local_pickup' && $method->enabled === 'yes') {
-                $title = $method->get_option('title', '');
-                $address = $method->get_option('pickup_address', '');
-                $email = $method->get_option('pickup_email', '');
-                if ($title && $address) {
-                    $wc_pickup_locations[strtolower($title)] = [
-                        'location' => $title,
-                        'address' => $address,
-                        'email' => $email,
-                    ];
-                }
-            }
-        }
-        // Merge with existing plugin locations, giving priority to WooCommerce for location/address, but keeping plugin email if exists
-        $plugin_locations = get_option('nbt_locations', []);
-        $merged_locations = [];
-        $summary = [];
-        foreach ($wc_pickup_locations as $key => $wc_loc) {
-            $plugin_email = '';
-            $was_updated = false;
-            $was_added = true;
-            foreach ($plugin_locations as $ploc) {
-                if (strtolower($ploc['location']) === $key) {
-                    $was_added = false;
-                    $plugin_email = !empty($ploc['email']) ? $ploc['email'] : '';
-                    // Check if address or name changed
-                    if ($ploc['address'] !== $wc_loc['address'] || $ploc['location'] !== $wc_loc['location']) {
-                        $was_updated = true;
-                    }
-                    break;
-                }
-            }
-            $merged_locations[] = [
-                'location' => $wc_loc['location'],
-                'address' => $wc_loc['address'],
-                'email' => $plugin_email ? $plugin_email : $wc_loc['email'],
-            ];
-            if ($was_added) {
-                $summary[] = 'Added: ' . $wc_loc['location'];
-            } elseif ($was_updated) {
-                $summary[] = 'Updated: ' . $wc_loc['location'];
-            } else {
-                $summary[] = 'Unchanged: ' . $wc_loc['location'];
-            }
-        }
-        if (!empty($merged_locations)) {
-            update_option('nbt_locations', $merged_locations);
-            update_option('nbt_default_location', $merged_locations[0]['location']);
-            $msg = 'Sync complete. ' . count($merged_locations) . ' pickup locations processed.<br>' . implode('<br>', $summary);
-            wp_send_json_success($msg);
-        } else {
-            wp_send_json_error('No enabled WooCommerce local pickup locations found.');
-        }
-    }
-
+   
     function init(){
 
     
