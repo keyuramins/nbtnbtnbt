@@ -46,15 +46,5 @@ do_action( 'yith_wapo_before_main_container' );
     ?>
 </div>
 
-<div class="nbt-location-selector-wrapper">
-    <form id="nbt-location-selector-form" method="post">
-        <select name="location_price" class="nbt-location-selector">
-            <?php foreach($locations as $key => $value): ?>
-                <option value="<?php echo esc_attr($key); ?>" <?php selected($current_location, $key); ?>><?php echo esc_html($value); ?></option>
-            <?php endforeach; ?>
-        </select>
-    </form>
-</div>
-
 <?php
 do_action( 'yith_wapo_after_main_container' );

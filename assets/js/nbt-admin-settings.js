@@ -78,7 +78,7 @@ jQuery(document).ready(function($) {
                         });
                         // Set the correct default location as selected
                         if (response.data && response.data.default_location) {
-                            $defaultSelect.val(response.data.default_location);
+                            $defaultSelect.val(response.data.default_location).trigger('change');
                         }
                     }
                 } else {

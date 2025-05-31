@@ -834,6 +834,59 @@ class nbtPublic{
 		add_action( 'init', [$this, 'remove_bacs_from_thank_you_page'], 100 );
 		add_filter('woocommerce_email_headers', 'add_cc_bcc_to_on_hold_order_emails', 10, 3);
 		add_filter('woocommerce_cart_item_name', [$this, 'remove_description_from_cart'], 50, 3);
+		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
 		
 	}	
+
+    public function nbt_location_selector_global() {
+        if (!function_exists('get_locations')) return;
+        $locations = get_locations();
+        $current_location = isset($_POST['location_price']) ? $_POST['location_price'] : (isset($_COOKIE['location_price']) ? $_COOKIE['location_price'] : '');
+        if (empty($locations)) return;
+        ?>
+        <div class="nbt-location-selector-global-wrapper">
+            <form id="nbt-location-selector-form" method="post">
+                <select name="location_price" class="nbt-location-selector">
+                    <?php foreach($locations as $key => $value): ?>
+                        <option value="<?php echo esc_attr($key); ?>" <?php selected($current_location, $key); ?>><?php echo esc_html($value); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
+        </div>
+        <style>
+        .nbt-location-selector-global-wrapper {
+            position: fixed;
+            top: 20px;
+            right: 40px;
+            z-index: 99999;
+            background: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .nbt-location-selector-global-wrapper .nbt-location-selector {
+            padding: 6px 16px;
+            background: #0E70B9;
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+        @media (max-width: 768px) {
+            .nbt-location-selector-global-wrapper {
+                top: 10px;
+                right: 10px;
+                left: auto;
+                width: auto;
+                margin: 0;
+                padding: 6px 8px;
+            }
+            .nbt-location-selector-global-wrapper .nbt-location-selector {
+                font-size: 18px;
+            }
+        }
+        </style>
+        <?php
+    }
 }
