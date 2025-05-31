@@ -64,4 +64,9 @@ jQuery( document ).ready(function($) {
         // This could involve an AJAX request to retrieve updated prices for the selected variation
         // Update the displayed prices on the page
     });
+
+    // Location selector submit on change
+    $(document).on('change', '.nbt-location-selector', function() {
+        $('#nbt-location-selector-form').submit();
+    });
 });

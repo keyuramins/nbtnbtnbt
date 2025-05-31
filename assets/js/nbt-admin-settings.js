@@ -68,6 +68,19 @@ jQuery(document).ready(function($) {
                     } else if (action === 'edit') {
                         $(".notice").remove();
                         $('#location-table').before('<div class="notice notice-success is-dismissible"><p>Location Updated successfully</p></div>');
+                        // Update the default location dropdown with the new names
+                        var $defaultSelect = $('#nbt-default-location');
+                        $defaultSelect.empty();
+                        $.each(locations, function(index, loc) {
+                            if(loc.location) {
+                                $defaultSelect.append('<option value="'+loc.location+'">'+loc.location+'</option>');
+                            }
+                        });
+                        // Keep the previously selected default if possible
+                        var prevDefault = $defaultSelect.data('prev');
+                        if(prevDefault) {
+                            $defaultSelect.val(prevDefault);
+                        }
                     }
                 } else {
                     alert("update Ajax error:" + response.error);

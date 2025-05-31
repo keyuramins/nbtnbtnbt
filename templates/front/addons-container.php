@@ -24,6 +24,9 @@ if ( $product instanceof WC_Product_Variable && empty( $product->get_default_att
 
 $default_product_price = $product->get_price();
 
+$locations = function_exists('get_locations') ? get_locations() : [];
+$current_location = isset($_POST['location_price']) ? $_POST['location_price'] : (isset($_COOKIE['location_price']) ? $_COOKIE['location_price'] : '');
+
 do_action( 'yith_wapo_before_main_container' );
 
 ?>
@@ -41,6 +44,16 @@ do_action( 'yith_wapo_before_main_container' );
  	?>
 	<?php $instance->print_blocks();
     ?>
+</div>
+
+<div class="nbt-location-selector-wrapper">
+    <form id="nbt-location-selector-form" method="post">
+        <select name="location_price" class="nbt-location-selector">
+            <?php foreach($locations as $key => $value): ?>
+                <option value="<?php echo esc_attr($key); ?>" <?php selected($current_location, $key); ?>><?php echo esc_html($value); ?></option>
+            <?php endforeach; ?>
+        </select>
+    </form>
 </div>
 
 <?php
