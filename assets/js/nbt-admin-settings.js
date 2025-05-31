@@ -223,4 +223,32 @@ jQuery(document).ready(function($) {
             });
         }
     });
+
+    // Sync from WooCommerce Local Pickup
+    $('#sync-wc-pickup-locations').on('click', function(e) {
+        e.preventDefault();
+        var $btn = $(this);
+        $btn.prop('disabled', true);
+        $('#sync-wc-pickup-locations-msg').text('Syncing...');
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'sync_wc_pickup_locations'
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#sync-wc-pickup-locations-msg').text(response.data);
+                    location.reload();
+                } else {
+                    $('#sync-wc-pickup-locations-msg').text(response.data || 'Sync failed.');
+                }
+                $btn.prop('disabled', false);
+            },
+            error: function() {
+                $('#sync-wc-pickup-locations-msg').text('Sync failed.');
+                $btn.prop('disabled', false);
+            }
+        });
+    });
 });

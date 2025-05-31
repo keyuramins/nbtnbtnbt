@@ -18,6 +18,7 @@ class NBT_Settings {
         add_action('wp_ajax_edit_nbt_location', [$this, 'edit_nbt_location']);
         add_action('wp_ajax_remove_nbt_location', [$this, 'remove_nbt_location']);
         add_action('wp_ajax_save_nbt_default_location', [$this, 'save_nbt_default_location']);
+        add_action('wp_ajax_sync_wc_pickup_locations', [$this, 'sync_wc_pickup_locations']);
         // Add settings page
         add_action('admin_menu', [$this, 'add_admin_menu']);
         
@@ -39,18 +40,17 @@ class NBT_Settings {
     public function render_settings_page() {
         // Get locations and default location
         $locations = get_option('nbt_locations', []);
-       
-
-         $default_location = get_option('nbt_default_location', '');
-        if($default_location == ''){
+        $default_location = get_option('nbt_default_location', '');
+        if($default_location == '' && !empty($locations)){
             update_option('nbt_default_location', $locations[0]['location']);
             $default_location = $locations[0]['location'];
-
         }
         // Render HTML
         ?>
         <div class="wrap">
             <h1>NBT Product Locations</h1>
+            <button id="sync-wc-pickup-locations" class="button button-secondary" style="margin-bottom: 20px;">Sync from WooCommerce Local Pickup</button>
+            <div id="sync-wc-pickup-locations-msg"></div>
             <h2>Manage Locations</h2>
             <form id="location-form">
             <table id="location-table" class="wp-list-table widefat fixed striped">
@@ -330,7 +330,56 @@ class NBT_Settings {
         }
     }
 
-   
+    public function sync_wc_pickup_locations() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Permission denied');
+        }
+        // Fetch all shipping zones
+        $zones = WC_Shipping_Zones::get_zones();
+        $pickup_locations = [];
+        foreach ($zones as $zone) {
+            foreach ($zone['shipping_methods'] as $method) {
+                if ($method->id === 'local_pickup' && $method->enabled === 'yes') {
+                    // Try to get pickup location name/address from method settings
+                    $title = $method->get_option('title', '');
+                    $address = $method->get_option('pickup_address', '');
+                    $email = $method->get_option('pickup_email', '');
+                    if ($title && $address) {
+                        $pickup_locations[] = [
+                            'location' => $title,
+                            'address' => $address,
+                            'email' => $email,
+                        ];
+                    }
+                }
+            }
+        }
+        // Also check the default zone
+        $default_zone = new WC_Shipping_Zone(0);
+        foreach ($default_zone->get_shipping_methods() as $method) {
+            if ($method->id === 'local_pickup' && $method->enabled === 'yes') {
+                $title = $method->get_option('title', '');
+                $address = $method->get_option('pickup_address', '');
+                $email = $method->get_option('pickup_email', '');
+                if ($title && $address) {
+                    $pickup_locations[] = [
+                        'location' => $title,
+                        'address' => $address,
+                        'email' => $email,
+                    ];
+                }
+            }
+        }
+        if (!empty($pickup_locations)) {
+            update_option('nbt_locations', $pickup_locations);
+            // Optionally set the first as default
+            update_option('nbt_default_location', $pickup_locations[0]['location']);
+            wp_send_json_success('Synced ' . count($pickup_locations) . ' pickup locations from WooCommerce.');
+        } else {
+            wp_send_json_error('No enabled WooCommerce local pickup locations found.');
+        }
+    }
+
     function init(){
 
     
