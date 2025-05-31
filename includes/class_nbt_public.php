@@ -836,6 +836,7 @@ class nbtPublic{
 		add_filter('woocommerce_cart_item_name', [$this, 'remove_description_from_cart'], 50, 3);
 		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
 		add_action('woocommerce_review_order_before_payment', [$this, 'show_pickup_details_checkout'], 10);
+		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
 		
 	}	
 
@@ -909,5 +910,12 @@ class nbtPublic{
             echo '<strong>Address:</strong> ' . esc_html($pickup_address);
             echo '</div>';
         }
+    }
+
+    public function hide_shipping_methods_on_checkout($needs_shipping) {
+        if (is_checkout()) {
+            return false;
+        }
+        return $needs_shipping;
     }
 }
