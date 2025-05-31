@@ -186,12 +186,12 @@ class NBT_Settings {
             $default_location = get_option('nbt_default_location', '');
             $old_locations = get_option('nbt_locations', []);
 
-            // If the default location's name is changed, update the default location value to match the new name
+            // Only update the default location value if the name of the default location is changed
             foreach ($old_locations as $old) {
                 if ($old['location'] === $default_location) {
                     foreach ($locations as $loc) {
+                        // Only update if the name changed, not if just address/email changed
                         if ($old['location'] !== $loc['location'] && $old['address'] === $loc['address'] && $old['email'] === $loc['email']) {
-                            // Name changed for the default location
                             update_option('nbt_default_location', $loc['location']);
                             break 2;
                         }
@@ -252,10 +252,13 @@ class NBT_Settings {
         if (isset($_POST['default_location'])) {
             $default_location = sanitize_text_field($_POST['default_location']);
             $old_default_location = get_option('nbt_default_location');
-            $this->woocommerce_product_custom_fields_save(strtolower($old_default_location), strtolower($default_location));
-            update_option('nbt_default_location', $default_location);
-
+            // Only update product prices if the default location actually changed
+            if ($old_default_location !== $default_location) {
+                $this->woocommerce_product_custom_fields_save(strtolower($old_default_location), strtolower($default_location));
+                update_option('nbt_default_location', $default_location);
+            }
             wp_send_json_success();
+            return;
         }
 
         wp_send_json_error('Invalid request.');
