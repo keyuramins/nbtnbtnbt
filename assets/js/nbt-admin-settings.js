@@ -228,8 +228,14 @@ jQuery(document).ready(function($) {
     $('#sync-wc-pickup-locations').on('click', function(e) {
         e.preventDefault();
         var $btn = $(this);
+        var $msg = $('#sync-wc-pickup-locations-msg');
         $btn.prop('disabled', true);
-        $('#sync-wc-pickup-locations-msg').text('Syncing...');
+        $msg.html('<span class="nbt-sync-spinner">&#8635; Syncing...</span>');
+        var dots = 0;
+        var interval = setInterval(function() {
+            dots = (dots + 1) % 4;
+            $msg.find('.nbt-sync-spinner').html('&#8635; Syncing' + '.'.repeat(dots));
+        }, 400);
         $.ajax({
             url: ajaxurl,
             type: 'POST',
@@ -237,16 +243,21 @@ jQuery(document).ready(function($) {
                 action: 'sync_wc_pickup_locations'
             },
             success: function(response) {
+                clearInterval(interval);
                 if (response.success) {
-                    $('#sync-wc-pickup-locations-msg').text(response.data);
+                    $msg.html('<span style="color:green;">' + response.data + '</span>');
+                    setTimeout(function(){ $msg.fadeOut(); }, 6000);
                     location.reload();
                 } else {
-                    $('#sync-wc-pickup-locations-msg').text(response.data || 'Sync failed.');
+                    $msg.html('<span style="color:red;">' + (response.data || 'Sync failed.') + '</span>');
+                    setTimeout(function(){ $msg.fadeOut(); }, 6000);
                 }
                 $btn.prop('disabled', false);
             },
             error: function() {
-                $('#sync-wc-pickup-locations-msg').text('Sync failed.');
+                clearInterval(interval);
+                $msg.html('<span style="color:red;">Sync failed.</span>');
+                setTimeout(function(){ $msg.fadeOut(); }, 6000);
                 $btn.prop('disabled', false);
             }
         });
