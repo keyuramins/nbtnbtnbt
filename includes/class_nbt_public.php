@@ -945,10 +945,10 @@ class nbtPublic{
         echo '<!-- DEBUG: show_pickup_details_checkout called. -->';
         // Add console logging for debugging
         echo '<script>console.log("[NBT] show_pickup_details_checkout called", {
-            current_location: "' . esc_js($current_location) . '",
-            pickup_name: "' . esc_js($pickup_name) . '",
-            pickup_address: "' . esc_js($pickup_address) . '"
-        });</script>';
+			current_location: "' . esc_js($current_location) . '",
+			pickup_name: "' . esc_js($pickup_name) . '",
+			pickup_address: "' . esc_js($pickup_address) . '"
+		});</script>';
         if (!empty($pickup_name)) {
             echo '<h3 style="margin-top: 0; color: #333;">Pickup Details</h3>';
             echo '<p style="margin: 5px 0;"><strong>Location:</strong> ' . esc_html($pickup_name) . '</p>';
