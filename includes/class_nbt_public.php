@@ -899,16 +899,21 @@ class nbtPublic{
     }
 
     public function show_pickup_details_checkout() {
+        echo '<script>console.log("[NBT] show_pickup_details_checkout: function called");</script>';
         // Get current location with better fallback handling
         $current_location = '';
         if (isset($_POST['location_price']) && !empty($_POST['location_price'])) {
             $current_location = sanitize_text_field($_POST['location_price']);
+            echo '<script>console.log("[NBT] POST location_price found: ' . esc_js($current_location) . '");</script>';
         } elseif (isset($_COOKIE['location_price']) && !empty($_COOKIE['location_price'])) {
             $current_location = sanitize_text_field($_COOKIE['location_price']);
+            echo '<script>console.log("[NBT] COOKIE location_price found: ' . esc_js($current_location) . '");</script>';
         } else {
             $current_location = $this->default_location; // Use default if nothing is set
+            echo '<script>console.log("[NBT] Using default_location: ' . esc_js($current_location) . '");</script>';
         }
         $nbt_locations = get_option('nbt_locations', []);
+        echo '<script>console.log("[NBT] nbt_locations loaded", ' . json_encode($nbt_locations) . ');</script>';
         $pickup_name = '';
         $pickup_address = '';
         if (!empty($current_location) && is_array($nbt_locations)) {
@@ -920,6 +925,7 @@ class nbtPublic{
                 if ($loc_key === $current_key) {
                     $pickup_name = isset($loc['location']) ? $loc['location'] : '';
                     $pickup_address = isset($loc['address']) ? $loc['address'] : '';
+                    echo '<script>console.log("[NBT] Found pickup_name: ' . esc_js($pickup_name) . ' and pickup_address: ' . esc_js($pickup_address) . '");</script>';
                     break;
                 }
             }
@@ -932,6 +938,7 @@ class nbtPublic{
                         foreach ($nbt_locations as $loc) {
                             if (isset($loc['location']) && trim(strtolower($loc['location'])) === trim(strtolower($key))) {
                                 $pickup_address = isset($loc['address']) ? $loc['address'] : '';
+                                echo '<script>console.log("[NBT] Found pickup_name from locations array: ' . esc_js($pickup_name) . ' and pickup_address: ' . esc_js($pickup_address) . '");</script>';
                                 break;
                             }
                         }
@@ -944,11 +951,11 @@ class nbtPublic{
         echo '<div class="nbt-pickup-details-checkout" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 4px;">';
         echo '<!-- DEBUG: show_pickup_details_checkout called. -->';
         // Add console logging for debugging
-        echo '<script>console.log("[NBT] show_pickup_details_checkout called", {
-			current_location: "' . esc_js($current_location) . '",
-			pickup_name: "' . esc_js($pickup_name) . '",
-			pickup_address: "' . esc_js($pickup_address) . '"
-		});</script>';
+        echo '<script>console.log("[NBT] Final output", {
+            current_location: "' . esc_js($current_location) . '",
+            pickup_name: "' . esc_js($pickup_name) . '",
+            pickup_address: "' . esc_js($pickup_address) . '"
+        });</script>';
         if (!empty($pickup_name)) {
             echo '<h3 style="margin-top: 0; color: #333;">Pickup Details</h3>';
             echo '<p style="margin: 5px 0;"><strong>Location:</strong> ' . esc_html($pickup_name) . '</p>';
@@ -962,11 +969,13 @@ class nbtPublic{
     }
 
     public function show_pickup_details_checkout_alternative() {
+        echo '<script>console.log("[NBT] show_pickup_details_checkout_alternative called");</script>';
         $this->show_pickup_details_checkout();
     }
 
     public function add_pickup_details_script() {
         if (is_checkout()) {
+            echo '<script>console.log("[NBT] add_pickup_details_script called on checkout");</script>';
             ?>
             <script type="text/javascript">
             jQuery(document).ready(function($) {
