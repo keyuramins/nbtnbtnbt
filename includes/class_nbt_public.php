@@ -943,6 +943,12 @@ class nbtPublic{
         // Always output the box, even if no details found
         echo '<div class="nbt-pickup-details-checkout" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 4px;">';
         echo '<!-- DEBUG: show_pickup_details_checkout called. -->';
+        // Add console logging for debugging
+        echo '<script>console.log("[NBT] show_pickup_details_checkout called", {
+            current_location: "' . esc_js($current_location) . '",
+            pickup_name: "' . esc_js($pickup_name) . '",
+            pickup_address: "' . esc_js($pickup_address) . '"
+        });</script>';
         if (!empty($pickup_name)) {
             echo '<h3 style="margin-top: 0; color: #333;">Pickup Details</h3>';
             echo '<p style="margin: 5px 0;"><strong>Location:</strong> ' . esc_html($pickup_name) . '</p>';
