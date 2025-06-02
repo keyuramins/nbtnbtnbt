@@ -835,7 +835,7 @@ class nbtPublic{
 		add_filter('woocommerce_email_headers', 'add_cc_bcc_to_on_hold_order_emails', 10, 3);
 		add_filter('woocommerce_cart_item_name', [$this, 'remove_description_from_cart'], 50, 3);
 		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
-		add_action('woocommerce_checkout_before_payment', [$this, 'show_pickup_details_checkout'], 5);
+		add_action('woocommerce_checkout_before_payment_methods', [$this, 'show_pickup_details_checkout'], 10);
 		add_action('woocommerce_checkout_before_order_review', [$this, 'show_pickup_details_checkout_alternative'], 20);
 		add_action('woocommerce_checkout_after_customer_details', [$this, 'show_pickup_details_checkout_alternative'], 10);
 		add_action('wp_footer', [$this, 'add_pickup_details_script']);
