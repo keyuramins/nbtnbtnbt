@@ -28,9 +28,11 @@ $default_location = get_default_location();
 $nbt_locations = get_option('nbt_locations', []);
 $selected_address = '';
 $selected_location = $current_locations;
+$selected_location_label = '';
 foreach ($nbt_locations as $loc) {
     if (strtolower($loc['location']) === strtolower($selected_location)) {
         $selected_address = $loc['address'];
+        $selected_location_label = $loc['location'];
         break;
     }
 }
