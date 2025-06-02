@@ -983,8 +983,24 @@ class nbtPublic{
     }
 
     public function make_phone_field_required($fields) {
+        // Only make these fields required
+        $required_fields = [
+            'billing_first_name',
+            'billing_last_name',
+            'billing_phone',
+            'billing_email',
+        ];
+        if (isset($fields['billing'])) {
+            foreach ($fields['billing'] as $key => &$field) {
+                if (in_array($key, $required_fields)) {
+                    $field['required'] = true;
+                } else {
+                    $field['required'] = false;
+                }
+            }
+        }
+        // Remove manual asterisk from phone label
         if (isset($fields['billing']['billing_phone'])) {
-            $fields['billing']['billing_phone']['required'] = true;
             $fields['billing']['billing_phone']['label'] = __('Phone', 'woocommerce');
         }
         return $fields;
