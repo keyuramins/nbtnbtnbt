@@ -838,6 +838,7 @@ class nbtPublic{
 		add_action('woocommerce_checkout_before_payment_methods', [$this, 'show_pickup_details_checkout'], 25);
 		add_action('woocommerce_checkout_after_customer_details', [$this, 'show_pickup_details_checkout_alternative'], 10);
 		add_shortcode('nbt_pickup_details', [$this, 'nbt_pickup_details_shortcode']);
+		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
 	}	
 
     public function nbt_location_selector_global() {
@@ -971,5 +972,12 @@ class nbtPublic{
         ob_start();
         $this->show_pickup_details_checkout();
         return ob_get_clean();
+    }
+
+    public function hide_shipping_methods_on_checkout($needs_shipping) {
+        if (is_checkout()) {
+            return false;
+        }
+        return $needs_shipping;
     }
 }
