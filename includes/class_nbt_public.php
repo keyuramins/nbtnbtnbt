@@ -839,6 +839,7 @@ class nbtPublic{
 		add_action('woocommerce_checkout_after_customer_details', [$this, 'show_pickup_details_checkout_alternative'], 10);
 		add_shortcode('nbt_pickup_details', [$this, 'nbt_pickup_details_shortcode']);
 		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
+		add_filter('woocommerce_checkout_fields', [$this, 'make_phone_field_required'], 20);
 	}	
 
     public function nbt_location_selector_global() {
@@ -979,5 +980,13 @@ class nbtPublic{
             return false;
         }
         return $needs_shipping;
+    }
+
+    public function make_phone_field_required($fields) {
+        if (isset($fields['billing']['billing_phone'])) {
+            $fields['billing']['billing_phone']['required'] = true;
+            $fields['billing']['billing_phone']['label'] = __('Phone', 'woocommerce') . ' *';
+        }
+        return $fields;
     }
 }

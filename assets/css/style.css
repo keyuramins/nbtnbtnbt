@@ -119,3 +119,17 @@ select.location_price {
 .woocommerce-checkout .shipping {
     display: none !important;
 }
+
+/* Hide the area and its contents marked within the red box on the checkout page */
+.woocommerce-checkout .woocommerce-additional-fields, /* Adjust selector as needed for the red box */
+.woocommerce-checkout .woocommerce-additional-fields__field-wrapper {
+    display: none !important;
+}
+
+/* Make phone field required on checkout */
+.woocommerce-checkout input#billing_phone {
+    border-color: #e00 !important;
+}
+.woocommerce-checkout input#billing_phone:required {
+    background: #fffbe6;
+}
