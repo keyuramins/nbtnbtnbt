@@ -36,7 +36,7 @@ foreach ($nbt_locations as $loc) {
 }
 $default_location_label = '';
 foreach ($nbt_locations as $loc) {
-    if (strtolower($loc['location']) === strtolower($default_location)) {
+    if (strtolower($loc['location']) === strtolower($current_locations)) {
         $default_location_label = $loc['location'];
         break;
     }
@@ -44,7 +44,7 @@ foreach ($nbt_locations as $loc) {
 
 ?>
 <tr class="woocommerce-shipping-totals shipping">
-	<th>Pickup Location: <?php echo esc_html($default_location_label); ?></th>
+	<th>Pickup Location: <?php echo esc_html($selected_location_label); ?></th>
 	<td data-title="Pickup Location">
 		<?php if ( ! empty( $available_methods ) && is_array( $available_methods ) ) : ?>
 			<ul id="shipping_method" class="woocommerce-shipping-methods">

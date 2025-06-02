@@ -624,7 +624,7 @@ class nbtPublic{
 	    		}
 	    	}
 	    	if(trim($address) != ''){
-	    		$total_rows['shipping']['label'] = __( 'Pickup Location:', 'woocommerce' );
+	    		$total_rows['shipping']['label'] = __( 'Pick1up Location:', 'woocommerce' );
 	        	$total_rows['shipping']['value'] = $address;
 	    	}
 	        
@@ -669,7 +669,7 @@ class nbtPublic{
 	    }
 	    if ($pickup_location) {
 	        echo '<tr class="custom-field-row">';
-	        echo '<td class="label">' . __('Pickup Location', 'woocommerce') . '</td>';
+	        echo '<td class="label">' . __('Pickup2 Location', 'woocommerce') . '</td>';
 	        echo '<td width="1%"></td>';
 	        echo '<td class="total"><strong>' . esc_html(ucfirst($pickup_location)) . '</strong></td>';
 	        echo '</tr>';
@@ -835,7 +835,10 @@ class nbtPublic{
 		add_filter('woocommerce_email_headers', 'add_cc_bcc_to_on_hold_order_emails', 10, 3);
 		add_filter('woocommerce_cart_item_name', [$this, 'remove_description_from_cart'], 50, 3);
 		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
-		add_action('woocommerce_checkout_before_payment', [$this, 'show_pickup_details_checkout'], 10);
+		add_action('woocommerce_checkout_before_payment', [$this, 'show_pickup_details_checkout'], 5);
+		add_action('woocommerce_checkout_before_order_review', [$this, 'show_pickup_details_checkout_alternative'], 20);
+		add_action('woocommerce_checkout_after_customer_details', [$this, 'show_pickup_details_checkout_alternative'], 10);
+		add_action('wp_footer', [$this, 'add_pickup_details_script']);
 		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
 		add_filter('woocommerce_order_shipping_to_display', [$this, 'custom_order_shipping_display'], 20, 2);
 		add_action('woocommerce_email_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
@@ -896,32 +899,79 @@ class nbtPublic{
     }
 
     public function show_pickup_details_checkout() {
-        $current_location = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
+        // Get current location with better fallback handling
+        $current_location = '';
+        if (isset($_POST['location_price']) && !empty($_POST['location_price'])) {
+            $current_location = sanitize_text_field($_POST['location_price']);
+        } elseif (isset($_COOKIE['location_price']) && !empty($_COOKIE['location_price'])) {
+            $current_location = sanitize_text_field($_COOKIE['location_price']);
+        } else {
+            $current_location = $this->default_location; // Use default if nothing is set
+        }
+        if (empty($current_location)) {
+            return;
+        }
         $nbt_locations = get_option('nbt_locations', []);
+        if (empty($nbt_locations) || !is_array($nbt_locations)) {
+            return;
+        }
         $pickup_name = '';
         $pickup_address = '';
-        if (is_array($nbt_locations) && !empty($current_location)) {
-            foreach ($nbt_locations as $loc) {
-                if (
-                    isset($loc['location'], $loc['address']) &&
-                    mb_strtolower(trim($loc['location'])) === mb_strtolower(trim($current_location))
-                ) {
-                    $pickup_name = $loc['location'];
-                    $pickup_address = $loc['address'];
+        // Find matching location (more robust matching)
+        foreach ($nbt_locations as $loc) {
+            if (!is_array($loc)) continue;
+            $loc_key = isset($loc['location']) ? trim(strtolower($loc['location'])) : '';
+            $current_key = trim(strtolower($current_location));
+            if ($loc_key === $current_key) {
+                $pickup_name = isset($loc['location']) ? $loc['location'] : '';
+                $pickup_address = isset($loc['address']) ? $loc['address'] : '';
+                break;
+            }
+        }
+        // Also try matching against your locations array keys
+        if (empty($pickup_name) && !empty($this->locations)) {
+            foreach ($this->locations as $key => $value) {
+                if (trim(strtolower($key)) === trim(strtolower($current_location))) {
+                    $pickup_name = $value;
+                    // Find address for this location
+                    foreach ($nbt_locations as $loc) {
+                        if (isset($loc['location']) && trim(strtolower($loc['location'])) === trim(strtolower($key))) {
+                            $pickup_address = isset($loc['address']) ? $loc['address'] : '';
+                            break;
+                        }
+                    }
                     break;
                 }
             }
         }
-        if ($pickup_name && $pickup_address) {
-            echo '<div class="nbt-pickup-details-checkout" style="margin-bottom:20px;padding:15px;border:1px solid #eee;background:#fafafa;">';
-            echo '<strong>Pickup Location:</strong> ' . esc_html($pickup_name) . '<br />';
-            echo '<strong>Address:</strong> ' . esc_html($pickup_address);
+        // Display pickup details if found
+        if (!empty($pickup_name)) {
+            echo '<div class="nbt-pickup-details-checkout" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 4px;">';
+            echo '<h3 style="margin-top: 0; color: #333;">Pickup Details</h3>';
+            echo '<p style="margin: 5px 0;"><strong>Location:</strong> ' . esc_html($pickup_name) . '</p>';
+            if (!empty($pickup_address)) {
+                echo '<p style="margin: 5px 0;"><strong>Address:</strong> ' . esc_html($pickup_address) . '</p>';
+            }
             echo '</div>';
-        } else {
-            echo '<div class="nbt-pickup-details-checkout" style="margin-bottom:20px;padding:15px;border:1px solid #eee;background:#fafafa;">';
-            echo '<strong>Pickup Location:</strong> Not selected<br />';
-            echo '<strong>Address:</strong> Not available';
-            echo '</div>';
+        }
+    }
+
+    public function show_pickup_details_checkout_alternative() {
+        $this->show_pickup_details_checkout();
+    }
+
+    public function add_pickup_details_script() {
+        if (is_checkout()) {
+            ?>
+            <script type="text/javascript">
+            jQuery(document).ready(function($) {
+                // Update pickup details when location selector changes
+                $(document).on('change', '.nbt-location-selector, .location_price', function() {
+                    $('body').trigger('update_checkout');
+                });
+            });
+            </script>
+            <?php
         }
     }
 
