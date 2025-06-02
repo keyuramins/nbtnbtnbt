@@ -985,7 +985,7 @@ class nbtPublic{
     public function make_phone_field_required($fields) {
         if (isset($fields['billing']['billing_phone'])) {
             $fields['billing']['billing_phone']['required'] = true;
-            $fields['billing']['billing_phone']['label'] = __('Phone', 'woocommerce') . ' *';
+            $fields['billing']['billing_phone']['label'] = __('Phone', 'woocommerce');
         }
         return $fields;
     }
