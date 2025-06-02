@@ -844,6 +844,7 @@ class nbtPublic{
 		add_action('woocommerce_email_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
 		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
 		add_action('wp_footer', [$this, 'debug_footer_console_log'], 1000);
+		add_action('wp_footer', [$this, 'show_pickup_details_checkout_footer_fallback'], 1001);
 	}	
 
     public function nbt_location_selector_global() {
@@ -1023,5 +1024,12 @@ class nbtPublic{
 
     public function debug_footer_console_log() {
         echo '<script>console.log("NBT plugin footer loaded");</script>';
+    }
+
+    public function show_pickup_details_checkout_footer_fallback() {
+        if (is_checkout()) {
+            echo '<script>console.log("[NBT] show_pickup_details_checkout_footer_fallback called");</script>';
+            $this->show_pickup_details_checkout();
+        }
     }
 }
