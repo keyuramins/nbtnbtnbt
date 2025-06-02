@@ -908,52 +908,51 @@ class nbtPublic{
         } else {
             $current_location = $this->default_location; // Use default if nothing is set
         }
-        if (empty($current_location)) {
-            return;
-        }
         $nbt_locations = get_option('nbt_locations', []);
-        if (empty($nbt_locations) || !is_array($nbt_locations)) {
-            return;
-        }
         $pickup_name = '';
         $pickup_address = '';
-        // Find matching location (more robust matching)
-        foreach ($nbt_locations as $loc) {
-            if (!is_array($loc)) continue;
-            $loc_key = isset($loc['location']) ? trim(strtolower($loc['location'])) : '';
-            $current_key = trim(strtolower($current_location));
-            if ($loc_key === $current_key) {
-                $pickup_name = isset($loc['location']) ? $loc['location'] : '';
-                $pickup_address = isset($loc['address']) ? $loc['address'] : '';
-                break;
-            }
-        }
-        // Also try matching against your locations array keys
-        if (empty($pickup_name) && !empty($this->locations)) {
-            foreach ($this->locations as $key => $value) {
-                if (trim(strtolower($key)) === trim(strtolower($current_location))) {
-                    $pickup_name = $value;
-                    // Find address for this location
-                    foreach ($nbt_locations as $loc) {
-                        if (isset($loc['location']) && trim(strtolower($loc['location'])) === trim(strtolower($key))) {
-                            $pickup_address = isset($loc['address']) ? $loc['address'] : '';
-                            break;
-                        }
-                    }
+        if (!empty($current_location) && is_array($nbt_locations)) {
+            // Find matching location (more robust matching)
+            foreach ($nbt_locations as $loc) {
+                if (!is_array($loc)) continue;
+                $loc_key = isset($loc['location']) ? trim(strtolower($loc['location'])) : '';
+                $current_key = trim(strtolower($current_location));
+                if ($loc_key === $current_key) {
+                    $pickup_name = isset($loc['location']) ? $loc['location'] : '';
+                    $pickup_address = isset($loc['address']) ? $loc['address'] : '';
                     break;
                 }
             }
+            // Also try matching against your locations array keys
+            if (empty($pickup_name) && !empty($this->locations)) {
+                foreach ($this->locations as $key => $value) {
+                    if (trim(strtolower($key)) === trim(strtolower($current_location))) {
+                        $pickup_name = $value;
+                        // Find address for this location
+                        foreach ($nbt_locations as $loc) {
+                            if (isset($loc['location']) && trim(strtolower($loc['location'])) === trim(strtolower($key))) {
+                                $pickup_address = isset($loc['address']) ? $loc['address'] : '';
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
         }
-        // Display pickup details if found
+        // Always output the box, even if no details found
+        echo '<div class="nbt-pickup-details-checkout" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 4px;">';
+        echo '<!-- DEBUG: show_pickup_details_checkout called. -->';
         if (!empty($pickup_name)) {
-            echo '<div class="nbt-pickup-details-checkout" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 4px;">';
             echo '<h3 style="margin-top: 0; color: #333;">Pickup Details</h3>';
             echo '<p style="margin: 5px 0;"><strong>Location:</strong> ' . esc_html($pickup_name) . '</p>';
             if (!empty($pickup_address)) {
                 echo '<p style="margin: 5px 0;"><strong>Address:</strong> ' . esc_html($pickup_address) . '</p>';
             }
-            echo '</div>';
+        } else {
+            echo '<p style="margin: 5px 0; color: #a00;"><strong>No pickup location selected or available.</strong></p>';
         }
+        echo '</div>';
     }
 
     public function show_pickup_details_checkout_alternative() {
