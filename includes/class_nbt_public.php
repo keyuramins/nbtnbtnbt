@@ -1029,6 +1029,7 @@ class nbtPublic{
     public function show_pickup_details_checkout_footer_fallback() {
         if (is_checkout()) {
             echo '<script>console.log("[NBT] show_pickup_details_checkout_footer_fallback called");</script>';
+            echo '<div style="background: #ff0; color: #000; padding: 20px; font-size: 20px; z-index:999999; position:relative;">[NBT TEST] This is a test message in the footer. If you see this, custom HTML output works.</div>';
             $this->show_pickup_details_checkout();
         }
     }
