@@ -836,15 +836,8 @@ class nbtPublic{
 		add_filter('woocommerce_cart_item_name', [$this, 'remove_description_from_cart'], 50, 3);
 		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
 		add_action('woocommerce_checkout_before_payment_methods', [$this, 'show_pickup_details_checkout'], 25);
-		add_action('woocommerce_checkout_before_order_review', [$this, 'show_pickup_details_checkout_alternative'], 20);
 		add_action('woocommerce_checkout_after_customer_details', [$this, 'show_pickup_details_checkout_alternative'], 10);
-		add_action('wp_footer', [$this, 'add_pickup_details_script']);
-		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
-		add_filter('woocommerce_order_shipping_to_display', [$this, 'custom_order_shipping_display'], 20, 2);
-		add_action('woocommerce_email_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
-		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
-		add_action('wp_footer', [$this, 'debug_footer_console_log'], 1000);
-		add_action('wp_footer', [$this, 'show_pickup_details_checkout_footer_fallback'], 1001);
+		add_shortcode('nbt_pickup_details', [$this, 'nbt_pickup_details_shortcode']);
 	}	
 
     public function nbt_location_selector_global() {
@@ -974,63 +967,9 @@ class nbtPublic{
         $this->show_pickup_details_checkout();
     }
 
-    public function add_pickup_details_script() {
-        if (is_checkout()) {
-            echo '<script>console.log("[NBT] add_pickup_details_script called on checkout");</script>';
-            ?>
-            <script type="text/javascript">
-            jQuery(document).ready(function($) {
-                // Update pickup details when location selector changes
-                $(document).on('change', '.nbt-location-selector, .location_price', function() {
-                    $('body').trigger('update_checkout');
-                });
-            });
-            </script>
-            <?php
-        }
-    }
-
-    public function hide_shipping_methods_on_checkout($needs_shipping) {
-        if (is_checkout()) {
-            return false;
-        }
-        return $needs_shipping;
-    }
-
-    public function custom_order_shipping_display($shipping_html, $order){
-        // Remove default shipping method display
-        return '';
-    }
-
-    public function show_pickup_details_order($order){
-        $pickup_location = $order->get_meta('pickup_location');
-        $nbt_locations = get_option('nbt_locations', []);
-        $pickup_name = '';
-        $pickup_address = '';
-        foreach ($nbt_locations as $loc) {
-            if (strtolower($loc['location']) === strtolower($pickup_location)) {
-                $pickup_name = $loc['location'];
-                $pickup_address = $loc['address'];
-                break;
-            }
-        }
-        if ($pickup_name && $pickup_address) {
-            echo '<div class="nbt-pickup-details-order" style="margin-bottom:20px;padding:15px;border:1px solid #eee;background:#fafafa;">';
-            echo '<strong>Pickup Location:</strong> ' . esc_html($pickup_name) . '<br />';
-            echo '<strong>Address:</strong> ' . esc_html($pickup_address);
-            echo '</div>';
-        }
-    }
-
-    public function debug_footer_console_log() {
-        echo '<script>console.log("NBT plugin footer loaded");</script>';
-    }
-
-    public function show_pickup_details_checkout_footer_fallback() {
-        if (is_checkout()) {
-            echo '<script>console.log("[NBT] show_pickup_details_checkout_footer_fallback called");</script>';
-            echo '<div style="background: #ff0; color: #000; padding: 20px; font-size: 20px; z-index:999999; position:relative;">[NBT TEST] This is a test message in the footer. If you see this, custom HTML output works.</div>';
-            $this->show_pickup_details_checkout();
-        }
+    public function nbt_pickup_details_shortcode() {
+        ob_start();
+        $this->show_pickup_details_checkout();
+        return ob_get_clean();
     }
 }
