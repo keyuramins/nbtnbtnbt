@@ -113,3 +113,9 @@ select.location_price {
         font-size: 18px;
     }
 }
+
+/* Hide WooCommerce shipping method UI on checkout */
+.woocommerce-checkout .woocommerce-shipping-methods,
+.woocommerce-checkout .shipping {
+    display: none !important;
+}

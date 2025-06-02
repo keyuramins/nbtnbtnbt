@@ -837,6 +837,9 @@ class nbtPublic{
 		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
 		add_action('woocommerce_review_order_before_payment', [$this, 'show_pickup_details_checkout'], 10);
 		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
+		add_filter('woocommerce_order_shipping_to_display', [$this, 'custom_order_shipping_display'], 20, 2);
+		add_action('woocommerce_email_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
+		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
 		
 	}	
 
@@ -917,5 +920,30 @@ class nbtPublic{
             return false;
         }
         return $needs_shipping;
+    }
+
+    public function custom_order_shipping_display($shipping_html, $order){
+        // Remove default shipping method display
+        return '';
+    }
+
+    public function show_pickup_details_order($order){
+        $pickup_location = $order->get_meta('pickup_location');
+        $nbt_locations = get_option('nbt_locations', []);
+        $pickup_name = '';
+        $pickup_address = '';
+        foreach ($nbt_locations as $loc) {
+            if (strtolower($loc['location']) === strtolower($pickup_location)) {
+                $pickup_name = $loc['location'];
+                $pickup_address = $loc['address'];
+                break;
+            }
+        }
+        if ($pickup_name && $pickup_address) {
+            echo '<div class="nbt-pickup-details-order" style="margin-bottom:20px;padding:15px;border:1px solid #eee;background:#fafafa;">';
+            echo '<strong>Pickup Location:</strong> ' . esc_html($pickup_name) . '<br />';
+            echo '<strong>Address:</strong> ' . esc_html($pickup_address);
+            echo '</div>';
+        }
     }
 }
