@@ -835,7 +835,7 @@ class nbtPublic{
 		add_filter('woocommerce_email_headers', 'add_cc_bcc_to_on_hold_order_emails', 10, 3);
 		add_filter('woocommerce_cart_item_name', [$this, 'remove_description_from_cart'], 50, 3);
 		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
-		add_action('woocommerce_review_order_before_payment', [$this, 'show_pickup_details_checkout'], 10);
+		add_action('woocommerce_checkout_before_payment', [$this, 'show_pickup_details_checkout'], 10);
 		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
 		add_filter('woocommerce_order_shipping_to_display', [$this, 'custom_order_shipping_display'], 20, 2);
 		add_action('woocommerce_email_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
@@ -900,17 +900,27 @@ class nbtPublic{
         $nbt_locations = get_option('nbt_locations', []);
         $pickup_name = '';
         $pickup_address = '';
-        foreach ($nbt_locations as $loc) {
-            if (strtolower($loc['location']) === strtolower($current_location)) {
-                $pickup_name = $loc['location'];
-                $pickup_address = $loc['address'];
-                break;
+        if (is_array($nbt_locations) && !empty($current_location)) {
+            foreach ($nbt_locations as $loc) {
+                if (
+                    isset($loc['location'], $loc['address']) &&
+                    mb_strtolower(trim($loc['location'])) === mb_strtolower(trim($current_location))
+                ) {
+                    $pickup_name = $loc['location'];
+                    $pickup_address = $loc['address'];
+                    break;
+                }
             }
         }
         if ($pickup_name && $pickup_address) {
             echo '<div class="nbt-pickup-details-checkout" style="margin-bottom:20px;padding:15px;border:1px solid #eee;background:#fafafa;">';
             echo '<strong>Pickup Location:</strong> ' . esc_html($pickup_name) . '<br />';
             echo '<strong>Address:</strong> ' . esc_html($pickup_address);
+            echo '</div>';
+        } else {
+            echo '<div class="nbt-pickup-details-checkout" style="margin-bottom:20px;padding:15px;border:1px solid #eee;background:#fafafa;">';
+            echo '<strong>Pickup Location:</strong> Not selected<br />';
+            echo '<strong>Address:</strong> Not available';
             echo '</div>';
         }
     }
