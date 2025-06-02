@@ -843,7 +843,7 @@ class nbtPublic{
 		add_filter('woocommerce_order_shipping_to_display', [$this, 'custom_order_shipping_display'], 20, 2);
 		add_action('woocommerce_email_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
 		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_order'], 10, 1);
-		
+		add_action('wp_footer', [$this, 'debug_footer_console_log'], 1000);
 	}	
 
     public function nbt_location_selector_global() {
@@ -1010,5 +1010,9 @@ class nbtPublic{
             echo '<strong>Address:</strong> ' . esc_html($pickup_address);
             echo '</div>';
         }
+    }
+
+    public function debug_footer_console_log() {
+        echo '<script>console.log("NBT plugin footer loaded");</script>';
     }
 }
