@@ -673,7 +673,7 @@ class nbtPublic{
 	    }
 	    if ($pickup_location) {
 	        echo '<tr class="custom-field-row">';
-	        echo '<td class="label">' . __('Pickup2 Location', 'woocommerce') . '</td>';
+	        echo '<td class="label">' . __('Pickup Location', 'woocommerce') . '</td>';
 	        echo '<td width="1%"></td>';
 	        echo '<td class="total"><strong>' . esc_html(ucfirst($pickup_location)) . '</strong></td>';
 	        echo '</tr>';
