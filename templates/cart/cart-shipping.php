@@ -45,6 +45,17 @@ foreach ($nbt_locations as $loc) {
 }
 
 ?>
+<!-- Always show pickup location and address on cart page -->
+<?php if (is_cart()) : ?>
+<tr class="nbt-pickup-location-row">
+    <th colspan="2" style="background: #f9f9f9; border-bottom: 1px solid #eee;">
+        <strong>Pickup Location:</strong> <?php echo esc_html($selected_location_label); ?>
+        <?php if (!empty($selected_address)) : ?>
+            <br><strong>Address:</strong> <?php echo esc_html($selected_address); ?>
+        <?php endif; ?>
+    </th>
+</tr>
+<?php endif; ?>
 <tr class="woocommerce-shipping-totals shipping">
 	<th>Pickup Location: <?php echo esc_html($selected_location_label); ?></th>
 	<td data-title="Pickup Location">

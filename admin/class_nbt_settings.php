@@ -255,8 +255,8 @@ class NBT_Settings {
             $old_default_location = get_option('nbt_default_location');
             // Only update product prices if the default location actually changed
             if ($old_default_location !== $default_location) {
-                $this->woocommerce_product_custom_fields_save(strtolower($old_default_location), strtolower($default_location));
-                update_option('nbt_default_location', $default_location);
+            $this->woocommerce_product_custom_fields_save(strtolower($old_default_location), strtolower($default_location));
+            update_option('nbt_default_location', $default_location);
             }
             wp_send_json_success();
             return;
