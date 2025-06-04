@@ -851,8 +851,9 @@ class nbtPublic{
 		add_filter('woocommerce_email_customer_details_heading', [$this, 'customize_email_customer_details_heading'], 10, 2);
 		add_filter('woocommerce_email_show_billing_address', '__return_false');
 		add_filter('woocommerce_email_get_billing_address', '__return_false');
+		add_filter('woocommerce_order_get_formatted_billing_address', '__return_empty_string');
+		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_on_order_page'], 10, 1);
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
-		add_filter( 'woocommerce_order_get_formatted_billing_address', '__return_empty_string' );
 	}	
 
     public function nbt_location_selector_global() {
@@ -1153,5 +1154,32 @@ class nbtPublic{
             );
         }
         return $new_fields;
+    }
+
+    public function show_pickup_details_on_order_page($order) {
+        if (!is_a($order, 'WC_Order')) return;
+        $pickup_date = $order->get_meta('pickup_date');
+        $pickup_location = $order->get_meta('pickup_location');
+        $pickup_address = '';
+        $nbt_locations = get_option('nbt_locations', []);
+        if (!empty($pickup_location) && is_array($nbt_locations)) {
+            foreach ($nbt_locations as $loc) {
+                if (isset($loc['location']) && strtolower($loc['location']) === strtolower($pickup_location)) {
+                    $pickup_address = isset($loc['address']) ? $loc['address'] : '';
+                    break;
+                }
+            }
+        }
+        if ($pickup_date || $pickup_address) {
+            echo '<div class="nbt-pickup-details-order" style="margin: 24px 0; padding: 16px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 8px; max-width: 420px;">';
+            echo '<strong style="font-size: 1.2em; color: #333;">Pickup Details</strong>';
+            if ($pickup_date) {
+                echo '<p style="margin: 5px 0;"><strong>Preferred Pickup Date:</strong> ' . esc_html($pickup_date) . '<br><span style="color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span></p>';
+            }
+            if ($pickup_address) {
+                echo '<p style="margin: 5px 0;"><strong>Pickup Address:</strong> ' . esc_html($pickup_address) . '</p>';
+            }
+            echo '</div>';
+        }
     }
 }
