@@ -841,6 +841,7 @@ class nbtPublic{
 		add_shortcode('nbt_pickup_details', [$this, 'nbt_pickup_details_shortcode']);
 		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
 		add_filter('woocommerce_checkout_fields', [$this, 'make_phone_field_required'], 20);
+		add_action('woocommerce_before_cart', [$this, 'show_pickup_details_cart'], 5);
 	}	
 
     public function nbt_location_selector_global() {
@@ -1005,5 +1006,35 @@ class nbtPublic{
             $fields['billing']['billing_phone']['label'] = __('Phone', 'woocommerce');
         }
         return $fields;
+    }
+
+    public function show_pickup_details_cart() {
+        // Get current location
+        $current_location = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
+        $nbt_locations = get_option('nbt_locations', []);
+        $pickup_name = '';
+        $pickup_address = '';
+        if (!empty($current_location) && is_array($nbt_locations)) {
+            foreach ($nbt_locations as $loc) {
+                if (!is_array($loc)) continue;
+                $loc_key = isset($loc['location']) ? trim(strtolower($loc['location'])) : '';
+                $current_key = trim(strtolower($current_location));
+                if ($loc_key === $current_key) {
+                    $pickup_name = isset($loc['location']) ? $loc['location'] : '';
+                    $pickup_address = isset($loc['address']) ? $loc['address'] : '';
+                    break;
+                }
+            }
+        }
+        // Output styled box if details found
+        if (!empty($pickup_name)) {
+            echo '<div class="nbt-pickup-details-cart" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 4px;">';
+            echo '<h3 style="margin-top: 0; color: #333;">Pickup Details</h3>';
+            echo '<p style="margin: 5px 0;"><strong>Location:</strong> ' . esc_html($pickup_name) . '</p>';
+            if (!empty($pickup_address)) {
+                echo '<p style="margin: 5px 0;"><strong>Address:</strong> ' . esc_html($pickup_address) . '</p>';
+            }
+            echo '</div>';
+        }
     }
 }
