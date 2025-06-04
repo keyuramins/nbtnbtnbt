@@ -44,18 +44,27 @@ foreach ($nbt_locations as $loc) {
     }
 }
 
+$showed_block = false;
+if (function_exists('is_cart') && is_cart()) {
+    // Block Cart detection: look for a block cart container in the DOM
+    echo '<div id="nbt-pickup-location-block-message" style="display:none;"></div>';
+    echo '<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (document.querySelector(".wc-block-cart")) {
+            var pickupDiv = document.getElementById("nbt-pickup-location-block-message");
+            if (pickupDiv) {
+                pickupDiv.style.display = "block";
+                pickupDiv.innerHTML = `<div class=\"nbt-pickup-location-block\" style=\"background:#f9f9f9;padding:12px 18px;margin-bottom:18px;border-radius:5px;border:1px solid #eee;\"><strong>Pickup Location:</strong> ' . esc_js($selected_location_label) . '<br><strong>Address:</strong> ' . esc_js($selected_address) . '</div>`;
+            }
+        }
+    });
+    </script>';
+    // Fallback for classic cart (table row)
+    echo '<!-- Always show pickup location and address on cart page (classic template) -->';
+    echo '<tr class="nbt-pickup-location-row"><th colspan="2" style="background: #f9f9f9; border-bottom: 1px solid #eee;"><strong>Pickup Location:</strong> ' . esc_html($selected_location_label) . (!empty($selected_address) ? '<br><strong>Address:</strong> ' . esc_html($selected_address) : '') . '</th></tr>';
+}
+
 ?>
-<!-- Always show pickup location and address on cart page -->
-<?php if (is_cart()) : ?>
-<tr class="nbt-pickup-location-row">
-    <th colspan="2" style="background: #f9f9f9; border-bottom: 1px solid #eee;">
-        <strong>Pickup Location:</strong> <?php echo esc_html($selected_location_label); ?>
-        <?php if (!empty($selected_address)) : ?>
-            <br><strong>Address:</strong> <?php echo esc_html($selected_address); ?>
-        <?php endif; ?>
-    </th>
-</tr>
-<?php endif; ?>
 <tr class="woocommerce-shipping-totals shipping">
 	<th>Pickup Location: <?php echo esc_html($selected_location_label); ?></th>
 	<td data-title="Pickup Location">
