@@ -845,7 +845,7 @@ class nbtPublic{
 		add_shortcode('nbt_pickup_details', [$this, 'nbt_pickup_details_shortcode']);
 		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
 		add_filter('woocommerce_checkout_fields', [$this, 'make_phone_field_required'], 20);
-		add_action('woocommerce_before_cart_totals', [$this, 'show_pickup_details_cart'], 5);
+		add_action('woocommerce_cart_totals_before_order_total', [$this, 'show_pickup_details_cart'], 5);
 	}	
 
     public function nbt_location_selector_global() {
@@ -1039,7 +1039,8 @@ class nbtPublic{
         }
         // Output styled box if details found
         if (!empty($pickup_name)) {
-            echo '<div class="nbt-pickup-details-cart" style="margin: 20px auto 10px auto; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 8px; max-width: 420px;">';
+            echo '<div class="nbt-pickup-details-cart" style="margin: 16px 0 16px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 8px; max-width: 420px;">';
+            echo '<strong style="font-size: 1.2em; color: #333;">Pickup Details</strong>';
             echo '<p style="margin: 5px 0;"><strong>Location:</strong> ' . esc_html($pickup_name) . '</p>';
             if (!empty($pickup_address)) {
                 echo '<p style="margin: 5px 0;"><strong>Address:</strong> ' . esc_html($pickup_address) . '</p>';
@@ -1052,33 +1053,39 @@ class nbtPublic{
             echo '<br><span style="display:block;margin-top:6px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
             echo '</div>';
             echo '</div>';
-            // Datepicker and AJAX logic with 2 working days logic
-            echo '<script>jQuery(function($){\
-function addWorkingDays(date, days) {\
-    var count = 0;\
-    var result = new Date(date);\
-    while (count < days) {\
-        result.setDate(result.getDate() + 1);\
-        var day = result.getDay();\
-        if (day !== 0) { count++; }\
-    }\
-    return result;\
-}\
-var today = new Date();\
-var minDate = addWorkingDays(today, 2);\
-$("#nbt-pickup-date").datepicker({\
-    dateFormat:"dd-mm-yy",\
-    minDate: minDate,\
-    beforeShowDay:function(date){\
-        var day = date.getDay();\
-        // Disable Sundays\
-        return [day != 0, ""];\
-    }\
-});\
-$("#nbt-pickup-date").on("focus click",function(){$(this).datepicker("show");});\
-$("#nbt-pickup-date").on("keydown",function(e){e.preventDefault();});\
-$("#nbt-pickup-date").on("change",function(){var pickupdate=$(this).val();$.ajax({url:myAjax.ajaxurl,type:"post",data:{action:"update_pickup_date_session",pickupdate:pickupdate},success:function(){},error:function(e){console.log("error:",e);}});});\
-});</script>';
+            // Output script block separately to avoid PHP/HTML escaping issues
+            ?>
+            <script>
+            jQuery(function($){
+                function addWorkingDays(date, days) {
+                    var count = 0;
+                    var result = new Date(date);
+                    while (count < days) {
+                        result.setDate(result.getDate() + 1);
+                        var day = result.getDay();
+                        if (day !== 0) { count++; }
+                    }
+                    return result;
+                }
+                var today = new Date();
+                var minDate = addWorkingDays(today, 2);
+                $("#nbt-pickup-date").datepicker({
+                    dateFormat: "dd-mm-yy",
+                    minDate: minDate,
+                    beforeShowDay: function(date){
+                        var day = date.getDay();
+                        return [day != 0, ""];
+                    }
+                });
+                $("#nbt-pickup-date").on("focus click",function(){$(this).datepicker("show");});
+                $("#nbt-pickup-date").on("keydown",function(e){e.preventDefault();});
+                $("#nbt-pickup-date").on("change",function(){
+                    var pickupdate=$(this).val();
+                    $.ajax({url:myAjax.ajaxurl,type:"post",data:{action:"update_pickup_date_session",pickupdate:pickupdate},success:function(){},error:function(e){console.log("error:",e);}});
+                });
+            });
+            </script>
+            <?php
         }
     }
 }
