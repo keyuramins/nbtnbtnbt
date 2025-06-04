@@ -629,7 +629,7 @@ class nbtPublic{
 	    	}
 	        
 	        $pp['pickup_date']['label'] = __('Preferred Pickup Date:', 'woocommerce');
-	        $pp['pickup_date']['value'] = $order->get_meta('pickup_date') . ' <span style="color:#555;font-size:13px;">Pick-up available between 10AM and 4PM</span>';
+	        $pp['pickup_date']['value'] = $order->get_meta('pickup_date') . '<br><span style="color:#555;font-size:13px;">Pick-up available between 10AM and 4PM</span>';
 	        array_splice($total_rows, 2, 0,$pp);
 	    }
 	    return $total_rows;
@@ -668,7 +668,7 @@ class nbtPublic{
 	        echo '<tr class="custom-field-row">';
 	        echo '<td class="label">' . __('Preferred Pickup Date', 'woocommerce') . '</td>';
 	        echo '<td width="1%"></td>';
-	        echo '<td class="total"><strong>' . esc_html($pickup_date) . '</strong> <span style="color:#555;font-size:13px;">Pick-up available between 10AM and 4PM</span></td>';
+	        echo '<td class="total"><strong>' . esc_html($pickup_date) . '</strong><br><span style="color:#555;font-size:13px;">Pick-up available between 10AM and 4PM</span></td>';
 	        echo '</tr>';
 	    }
 	    if ($pickup_location) {
@@ -846,6 +846,9 @@ class nbtPublic{
 		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
 		add_filter('woocommerce_checkout_fields', [$this, 'make_phone_field_required'], 20);
 		add_action('woocommerce_cart_totals_before_order_total', [$this, 'show_pickup_details_cart'], 5);
+		add_filter('woocommerce_email_order_meta_fields', [$this, 'add_pickup_date_to_email'], 10, 3);
+		add_filter('woocommerce_email_customer_details_fields', [$this, 'customize_email_customer_details_fields'], 10, 3);
+		add_filter('woocommerce_email_customer_details_heading', [$this, 'customize_email_customer_details_heading'], 10, 2);
 	}	
 
     public function nbt_location_selector_global() {
@@ -969,7 +972,7 @@ class nbtPublic{
                 $pickup_date = $order->get_meta('pickup_date');
             }
             if (!empty($pickup_date)) {
-                echo '<p style="margin: 5px 0;"><strong>Preferred Pickup Date:</strong> ' . esc_html($pickup_date) . ' <span style="color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span></p>';
+                echo '<p style="margin: 5px 0;"><strong>Preferred Pickup Date:</strong> ' . esc_html($pickup_date) . '<br><span style="color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span></p>';
             }
         } else {
             echo '<p style="margin: 5px 0; color: #a00;"><strong>No pickup location selected or available.</strong></p>';
@@ -1087,5 +1090,47 @@ class nbtPublic{
             </script>
             <?php
         }
+    }
+
+    public function add_pickup_date_to_email($fields, $sent_to_admin, $order) {
+        $pickup_date = $order->get_meta('pickup_date');
+        if ($pickup_date) {
+            $fields['pickup_date'] = array(
+                'label' => __('Preferred Pickup Date', 'woocommerce'),
+                'value' => esc_html($pickup_date) . '<br><span style="color:#555;font-size:13px;">Pick-up available between 10AM and 4PM</span>',
+            );
+        }
+        return $fields;
+    }
+
+    public function customize_email_customer_details_heading($heading, $sent_to_admin) {
+        return __('Registrant details', 'woocommerce');
+    }
+
+    public function customize_email_customer_details_fields($fields, $sent_to_admin, $order) {
+        $new_fields = array();
+        // Only show name, email, and phone
+        $name = trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name());
+        if ($name) {
+            $new_fields['name'] = array(
+                'label' => __('Name', 'woocommerce'),
+                'value' => esc_html($name),
+            );
+        }
+        $email = $order->get_billing_email();
+        if ($email) {
+            $new_fields['email'] = array(
+                'label' => __('Email', 'woocommerce'),
+                'value' => esc_html($email),
+            );
+        }
+        $phone = $order->get_billing_phone();
+        if ($phone) {
+            $new_fields['phone'] = array(
+                'label' => __('Phone', 'woocommerce'),
+                'value' => esc_html($phone),
+            );
+        }
+        return $new_fields;
     }
 }
