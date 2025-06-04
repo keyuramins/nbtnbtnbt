@@ -855,6 +855,7 @@ class nbtPublic{
 		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_on_order_page'], 10, 1);
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
 		add_action('woocommerce_email', [$this, 'remove_email_addresses'], 10, 1);
+		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_customer_details', 10 );
 	}	
 
 	// Remove entire addresses section from order table
