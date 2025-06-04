@@ -846,9 +846,10 @@ class nbtPublic{
 		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
 		add_filter('woocommerce_checkout_fields', [$this, 'make_phone_field_required'], 20);
 		add_action('woocommerce_cart_totals_before_order_total', [$this, 'show_pickup_details_cart'], 5);
-		add_filter('woocommerce_email_order_meta_fields', [$this, 'add_pickup_date_to_email'], 10, 3);
+		add_filter('woocommerce_email_order_meta_fields', [$this, 'add_pickup_date_and_address_to_email'], 10, 3);
 		add_filter('woocommerce_email_customer_details_fields', [$this, 'customize_email_customer_details_fields'], 10, 3);
 		add_filter('woocommerce_email_customer_details_heading', [$this, 'customize_email_customer_details_heading'], 10, 2);
+		add_filter('woocommerce_email_show_billing_address', '__return_false');
 	}	
 
     public function nbt_location_selector_global() {
@@ -1092,12 +1093,29 @@ class nbtPublic{
         }
     }
 
-    public function add_pickup_date_to_email($fields, $sent_to_admin, $order) {
+    public function add_pickup_date_and_address_to_email($fields, $sent_to_admin, $order) {
         $pickup_date = $order->get_meta('pickup_date');
+        $pickup_location = $order->get_meta('pickup_location');
+        $pickup_address = '';
+        $nbt_locations = get_option('nbt_locations', []);
+        if (!empty($pickup_location) && is_array($nbt_locations)) {
+            foreach ($nbt_locations as $loc) {
+                if (isset($loc['location']) && strtolower($loc['location']) === strtolower($pickup_location)) {
+                    $pickup_address = isset($loc['address']) ? $loc['address'] : '';
+                    break;
+                }
+            }
+        }
         if ($pickup_date) {
             $fields['pickup_date'] = array(
                 'label' => __('Preferred Pickup Date', 'woocommerce'),
                 'value' => esc_html($pickup_date) . '<br><span style="color:#555;font-size:13px;">Pick-up available between 10AM and 4PM</span>',
+            );
+        }
+        if ($pickup_address) {
+            $fields['pickup_address'] = array(
+                'label' => __('Pickup Address', 'woocommerce'),
+                'value' => esc_html($pickup_address),
             );
         }
         return $fields;
