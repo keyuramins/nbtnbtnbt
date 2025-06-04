@@ -821,7 +821,7 @@ class nbtPublic{
 		 
 		add_action('wp_footer', [$this, 'btlocation_footer_popup'],20);
 		add_action( 'wp_enqueue_scripts', [$this, 'nbt_scripts'], 50 );
-		 add_shortcode("header_location", [$this, "header_location"],10);
+		add_shortcode("header_location", [$this, "header_location"],10);
 		add_filter( 'woocommerce_get_price_html', [$this,'custom_sale_price_display'], 100, 2 );
 		add_action('init',  [$this, 'location_submit']);
 		add_filter("yith_wapo_product_price", [$this, "yith_wapo_product_price"], 20, 2);
@@ -854,12 +854,14 @@ class nbtPublic{
 		add_filter('woocommerce_order_get_formatted_billing_address', '__return_empty_string');
 		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_on_order_page'], 10, 1);
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
-		// Remove entire addresses section from order table
-		add_action('woocommerce_email', function($email_class) {
-			remove_action('woocommerce_email_order_details', array($email_class, 'order_addresses'), 20);
-		});
+		add_action('woocommerce_email', [$this, 'remove_email_addresses'], 10, 1);
 	}	
 
+	// Remove entire addresses section from order table
+	public function remove_email_addresses($email_class) {
+		remove_action('woocommerce_email_order_details', [$email_class, 'order_addresses'], 20);
+	}
+	
     public function nbt_location_selector_global() {
         if (!function_exists('get_locations')) return;
         $locations = get_locations();
