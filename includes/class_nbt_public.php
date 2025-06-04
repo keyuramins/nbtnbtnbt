@@ -850,6 +850,9 @@ class nbtPublic{
 		add_filter('woocommerce_email_customer_details_fields', [$this, 'customize_email_customer_details_fields'], 10, 3);
 		add_filter('woocommerce_email_customer_details_heading', [$this, 'customize_email_customer_details_heading'], 10, 2);
 		add_filter('woocommerce_email_show_billing_address', '__return_false');
+		add_filter('woocommerce_email_get_billing_address', '__return_false');
+		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
+		add_filter( 'woocommerce_order_get_formatted_billing_address', '__return_empty_string' );
 	}	
 
     public function nbt_location_selector_global() {
