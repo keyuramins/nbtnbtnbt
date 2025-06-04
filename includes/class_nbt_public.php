@@ -629,7 +629,7 @@ class nbtPublic{
 	    	}
 	        
 	        $pp['pickup_date']['label'] = __('Preferred Pickup Date:', 'woocommerce');
-	        $pp['pickup_date']['value'] = $order->get_meta('pickup_date');
+	        $pp['pickup_date']['value'] = $order->get_meta('pickup_date') . ' <span style="color:#555;font-size:13px;">Pick-up available between 10AM and 4PM</span>';
 	        array_splice($total_rows, 2, 0,$pp);
 	    }
 	    return $total_rows;
@@ -645,14 +645,18 @@ class nbtPublic{
 	}
 
 	function save_custom_checkout_field($order) {
-		
-    	if ($_POST['pickup_date']) {
-        	$order->update_meta_data('pickup_date', sanitize_text_field($_POST['pickup_date']));
-    	}
-
-	    $order->update_meta_data('pickup_location', sanitize_text_field( $this->current_locations));
-	   
-    }
+		// Always get pickup date from session if not in POST
+		$pickup_date = '';
+		if (!empty($_POST['pickup_date'])) {
+			$pickup_date = sanitize_text_field($_POST['pickup_date']);
+		} elseif (isset(WC()->session)) {
+			$pickup_date = WC()->session->get('pickup_date');
+		}
+		if (!empty($pickup_date)) {
+			$order->update_meta_data('pickup_date', $pickup_date);
+		}
+		$order->update_meta_data('pickup_location', sanitize_text_field($this->current_locations));
+	}
 
 
 	function display_custom_fields_after_subtotal($order_id ) {
@@ -664,7 +668,7 @@ class nbtPublic{
 	        echo '<tr class="custom-field-row">';
 	        echo '<td class="label">' . __('Preferred Pickup Date', 'woocommerce') . '</td>';
 	        echo '<td width="1%"></td>';
-	        echo '<td class="total"><strong>' . esc_html($pickup_date) . '</strong></td>';
+	        echo '<td class="total"><strong>' . esc_html($pickup_date) . '</strong> <span style="color:#555;font-size:13px;">Pick-up available between 10AM and 4PM</span></td>';
 	        echo '</tr>';
 	    }
 	    if ($pickup_location) {
@@ -960,6 +964,13 @@ class nbtPublic{
             if (!empty($pickup_address)) {
                 echo '<p style="margin: 5px 0;"><strong>Address:</strong> ' . esc_html($pickup_address) . '</p>';
             }
+            $pickup_date = isset(WC()->session) ? WC()->session->get('pickup_date') : '';
+            if (empty($pickup_date) && isset($order) && is_a($order, 'WC_Order')) {
+                $pickup_date = $order->get_meta('pickup_date');
+            }
+            if (!empty($pickup_date)) {
+                echo '<p style="margin: 5px 0;"><strong>Preferred Pickup Date:</strong> ' . esc_html($pickup_date) . ' <span style="color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span></p>';
+            }
         } else {
             echo '<p style="margin: 5px 0; color: #a00;"><strong>No pickup location selected or available.</strong></p>';
         }
@@ -1034,7 +1045,39 @@ class nbtPublic{
             if (!empty($pickup_address)) {
                 echo '<p style="margin: 5px 0;"><strong>Address:</strong> ' . esc_html($pickup_address) . '</p>';
             }
+            // Pickup Date logic
+            $pickup_date = isset(WC()->session) ? WC()->session->get('pickup_date') : '';
+            echo '<div class="nbt-pickup-date-row" style="margin-top: 12px;">';
+            echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label> ';
+            echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="' . esc_attr($pickup_date) . '" style="margin-left:8px;max-width:180px;" autocomplete="off" />';
+            echo '<span style="margin-left:12px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
             echo '</div>';
+            echo '</div>';
+            // Datepicker and AJAX logic with 2 working days logic
+            echo '<script>jQuery(function($){\
+function addWorkingDays(date, days) {\
+    var count = 0;\
+    var result = new Date(date);\
+    while (count < days) {\
+        result.setDate(result.getDate() + 1);\
+        var day = result.getDay();\
+        if (day !== 0) { count++; }\
+    }\
+    return result;\
+}\
+var today = new Date();\
+var minDate = addWorkingDays(today, 2);\
+$("#nbt-pickup-date").datepicker({\
+    dateFormat:"dd-mm-yy",\
+    minDate: minDate,\
+    beforeShowDay:function(date){\
+        var day = date.getDay();\
+        // Disable Sundays\
+        return [day != 0, ""];\
+    }\
+});\
+$("#nbt-pickup-date").on("change",function(){var pickupdate=$(this).val();$.ajax({url:myAjax.ajaxurl,type:"post",data:{action:"update_pickup_date_session",pickupdate:pickupdate},success:function(){},error:function(e){console.log("error:",e);}});});\
+});</script>';
         }
     }
 }
