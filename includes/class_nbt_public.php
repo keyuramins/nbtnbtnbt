@@ -1039,7 +1039,7 @@ class nbtPublic{
         }
         // Output styled box if details found
         if (!empty($pickup_name)) {
-            echo '<div class="nbt-pickup-details-cart" style="margin: 20px 0 10px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 4px;">';
+            echo '<div class="nbt-pickup-details-cart" style="margin: 20px 0 10px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 8px; max-width: 420px; float: right;">';
             echo '<h3 style="margin-top: 0; color: #333;">Pickup Details</h3>';
             echo '<p style="margin: 5px 0;"><strong>Location:</strong> ' . esc_html($pickup_name) . '</p>';
             if (!empty($pickup_address)) {
@@ -1050,7 +1050,7 @@ class nbtPublic{
             echo '<div class="nbt-pickup-date-row" style="margin-top: 12px;">';
             echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label> ';
             echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="' . esc_attr($pickup_date) . '" style="margin-left:8px;max-width:180px;" autocomplete="off" readonly />';
-            echo '<span style="margin-left:12px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
+            echo '<br><span style="display:block;margin-top:6px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
             echo '</div>';
             echo '</div>';
             // Datepicker and AJAX logic with 2 working days logic
@@ -1074,9 +1074,12 @@ $("#nbt-pickup-date").datepicker({\
         var day = date.getDay();\
         // Disable Sundays\
         return [day != 0, ""];\
-    }\
+    },\
+    showOn: "focus click",\
+    onClose: function(input, inst) { $(input).blur(); }\
 });\
-$("#nbt-pickup-date").on("focus",function(){$(this).datepicker("show");});\
+$("#nbt-pickup-date").on("focus click",function(){$(this).datepicker("show");});\
+$("#nbt-pickup-date").on("keydown",function(e){e.preventDefault();});\
 $("#nbt-pickup-date").on("change",function(){var pickupdate=$(this).val();$.ajax({url:myAjax.ajaxurl,type:"post",data:{action:"update_pickup_date_session",pickupdate:pickupdate},success:function(){},error:function(e){console.log("error:",e);}});});\
 });</script>';
         }
