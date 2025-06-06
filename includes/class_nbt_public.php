@@ -847,8 +847,8 @@ class nbtPublic{
 		add_filter('woocommerce_checkout_fields', [$this, 'make_phone_field_required'], 20);
 		add_action('woocommerce_cart_totals_before_order_total', [$this, 'show_pickup_details_cart'], 5);
 		add_filter('woocommerce_email_order_meta_fields', [$this, 'add_pickup_date_and_address_to_email'], 10, 3);
-		add_filter('woocommerce_email_customer_details_fields', [$this, 'customize_email_customer_details_fields'], 10, 3);
 		add_filter('woocommerce_email_customer_details_heading', [$this, 'customize_email_customer_details_heading'], 10, 2);
+		add_filter('woocommerce_email_customer_details_fields', [$this, 'customize_email_customer_details_fields'], 10, 3);
 		add_filter('woocommerce_email_show_billing_address', '__return_false');
 		add_filter('woocommerce_email_get_billing_address', '__return_false');
 		#add_filter('woocommerce_order_get_formatted_billing_address', '__return_empty_string');
@@ -916,6 +916,9 @@ class nbtPublic{
     }
 
     public function show_pickup_details_checkout() {
+        if (function_exists('is_checkout') && is_checkout()) {
+            echo '<style>.variation-Depositamount { display: none !important; }</style>';
+        }
         echo '<script>console.log("[NBT] show_pickup_details_checkout: function called");</script>';
         // Get current location with better fallback handling
         $current_location = '';
@@ -985,6 +988,46 @@ class nbtPublic{
             }
             if (!empty($pickup_date)) {
                 echo '<p style="margin: 5px 0;"><strong>Preferred Pickup Date:</strong> ' . esc_html($pickup_date) . '<br><span style="color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span></p>';
+            } else {
+                // Show input if not set
+                echo '<div class="nbt-pickup-date-row" style="margin-top: 12px;">';
+                echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label> ';
+                echo '<span style="font-size:13px;color:#888;margin-left:8px;">Optional</span>';
+                echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="" style="margin-left:8px;max-width:180px;" autocomplete="off" placeholder="Pick a date" />';
+                echo '<br><span style="display:block;margin-top:6px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
+                echo '</div>';
+                ?>
+                <script>
+                jQuery(function($){
+                    function addWorkingDays(date, days) {
+                        var count = 0;
+                        var result = new Date(date);
+                        while (count < days) {
+                            result.setDate(result.getDate() + 1);
+                            var day = result.getDay();
+                            if (day !== 0) { count++; }
+                        }
+                        return result;
+                    }
+                    var today = new Date();
+                    var minDate = addWorkingDays(today, 2);
+                    $("#nbt-pickup-date").datepicker({
+                        dateFormat: "dd-mm-yy",
+                        minDate: minDate,
+                        beforeShowDay: function(date){
+                            var day = date.getDay();
+                            return [day != 0, ""];
+                        }
+                    });
+                    $("#nbt-pickup-date").on("focus click",function(){$(this).datepicker("show");});
+                    $("#nbt-pickup-date").on("keydown",function(e){e.preventDefault();});
+                    $("#nbt-pickup-date").on("change",function(){
+                        var pickupdate=$(this).val();
+                        $.ajax({url:myAjax.ajaxurl,type:"post",data:{action:"update_pickup_date_session",pickupdate:pickupdate},success:function(){},error:function(e){console.log("error:",e);}});
+                    });
+                });
+                </script>
+                <?php
             }
         } else {
             echo '<p style="margin: 5px 0; color: #a00;"><strong>No pickup location selected or available.</strong></p>';
@@ -1064,7 +1107,8 @@ class nbtPublic{
             $pickup_date = isset(WC()->session) ? WC()->session->get('pickup_date') : '';
             echo '<div class="nbt-pickup-date-row" style="margin-top: 12px;">';
             echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label> ';
-            echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="' . esc_attr($pickup_date) . '" style="margin-left:8px;max-width:180px;" autocomplete="off" />';
+            echo '<span style="font-size:13px;color:#888;margin-left:8px;">Optional</span>';
+            echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="' . esc_attr($pickup_date) . '" style="margin-left:8px;max-width:180px;" autocomplete="off" placeholder="Pick a date" />';
             echo '<br><span style="display:block;margin-top:6px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
             echo '</div>';
             echo '</div>';
