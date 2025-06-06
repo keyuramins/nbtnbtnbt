@@ -991,10 +991,16 @@ class nbtPublic{
             } else {
                 // Show input if not set
                 echo '<div class="nbt-pickup-date-row" style="margin-top: 12px;">';
+                echo '<div class="nbt-pickup-date-flex" style="display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px;">';
+                echo '<div style="display:flex;flex-direction:column;">';
                 echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label>';
-                echo '<span style="display:block;font-size:13px;color:#888;margin:2px 0 6px 0;">Optional</span>';
-                echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="" style="margin-left:8px;max-width:180px;" autocomplete="off" placeholder="Pick a date" />';
+                echo '<span style="display:block;font-size:13px;color:#888;margin:2px 0 0 0;">Optional</span>';
+                echo '</div>';
+                echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="' . (isset($pickup_date) ? esc_attr($pickup_date) : '') . '" style="max-width:180px;min-width:140px;flex:1 1 140px;" autocomplete="off" placeholder="Pick a date" />';
+                echo '</div>';
                 echo '<br><span style="display:block;margin-top:6px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
+                echo '</div>';
+                echo '<style>@media (max-width:600px){.nbt-pickup-date-flex{flex-direction:column;align-items:stretch;gap:4px;}}</style>';
                 echo '</div>';
                 ?>
                 <script>
@@ -1106,11 +1112,16 @@ class nbtPublic{
             // Pickup Date logic
             $pickup_date = isset(WC()->session) ? WC()->session->get('pickup_date') : '';
             echo '<div class="nbt-pickup-date-row" style="margin-top: 12px;">';
+            echo '<div class="nbt-pickup-date-flex" style="display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px;">';
+            echo '<div style="display:flex;flex-direction:column;">';
             echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label>';
-            echo '<span style="display:block;font-size:13px;color:#888;margin:2px 0 6px 0;">Optional</span>';
-            echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="' . esc_attr($pickup_date) . '" style="margin-left:8px;max-width:180px;" autocomplete="off" placeholder="Pick a date" />';
+            echo '<span style="display:block;font-size:13px;color:#888;margin:2px 0 0 0;">Optional</span>';
+            echo '</div>';
+            echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="' . (isset($pickup_date) ? esc_attr($pickup_date) : '') . '" style="max-width:180px;min-width:140px;flex:1 1 140px;" autocomplete="off" placeholder="Pick a date" />';
+            echo '</div>';
             echo '<br><span style="display:block;margin-top:6px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
             echo '</div>';
+            echo '<style>@media (max-width:600px){.nbt-pickup-date-flex{flex-direction:column;align-items:stretch;gap:4px;}}</style>';
             echo '</div>';
             // Output script block separately to avoid PHP/HTML escaping issues
             ?>
