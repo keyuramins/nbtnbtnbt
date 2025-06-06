@@ -916,7 +916,7 @@ class nbtPublic{
     }
 
     public function show_pickup_details_checkout() {
-        if (function_exists('is_checkout') && is_checkout()) {
+        if ((function_exists('is_checkout') && is_checkout()) || (function_exists('is_cart') && is_cart())) {
             echo '<style>.variation-Depositamount, .variation-Futurepayments { display: none !important; } </style>';
         }
         echo '<script>console.log("[NBT] show_pickup_details_checkout: function called");</script>';
