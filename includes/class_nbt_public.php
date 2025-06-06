@@ -917,7 +917,7 @@ class nbtPublic{
 
     public function show_pickup_details_checkout() {
         if (function_exists('is_checkout') && is_checkout()) {
-            echo '<style>.variation-Depositamount { display: none !important; }</style>';
+            echo '<style>.variation-Depositamount, .variation-Futurepayments { display: none !important; } </style>';
         }
         echo '<script>console.log("[NBT] show_pickup_details_checkout: function called");</script>';
         // Get current location with better fallback handling
@@ -991,8 +991,8 @@ class nbtPublic{
             } else {
                 // Show input if not set
                 echo '<div class="nbt-pickup-date-row" style="margin-top: 12px;">';
-                echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label> ';
-                echo '<span style="font-size:13px;color:#888;margin-left:8px;">Optional</span>';
+                echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label>';
+                echo '<span style="display:block;font-size:13px;color:#888;margin:2px 0 6px 0;">Optional</span>';
                 echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="" style="margin-left:8px;max-width:180px;" autocomplete="off" placeholder="Pick a date" />';
                 echo '<br><span style="display:block;margin-top:6px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
                 echo '</div>';
@@ -1106,8 +1106,8 @@ class nbtPublic{
             // Pickup Date logic
             $pickup_date = isset(WC()->session) ? WC()->session->get('pickup_date') : '';
             echo '<div class="nbt-pickup-date-row" style="margin-top: 12px;">';
-            echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label> ';
-            echo '<span style="font-size:13px;color:#888;margin-left:8px;">Optional</span>';
+            echo '<label for="nbt-pickup-date" style="font-weight:600;">Preferred Pickup Date:</label>';
+            echo '<span style="display:block;font-size:13px;color:#888;margin:2px 0 6px 0;">Optional</span>';
             echo '<input type="text" id="nbt-pickup-date" name="pickup_date" class="date-picker input-text" value="' . esc_attr($pickup_date) . '" style="margin-left:8px;max-width:180px;" autocomplete="off" placeholder="Pick a date" />';
             echo '<br><span style="display:block;margin-top:6px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
             echo '</div>';
