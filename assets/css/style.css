@@ -136,3 +136,23 @@ select.location_price {
 #billing_country_field, #billing_state_field, #billing_address_1_field, #billing_address_2_field, #billing_city_field, #billing_state_field, #billing_postcode_field {
     display: none !important;
 }
+
+.nbt-location-selector-global-wrapper {
+    position: fixed;
+    top: 20px;
+    right: 40px;
+    z-index: 99999;
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.nbt-location-selector-global-wrapper .nbt-location-selector {
+    padding: 6px 16px;
+    background: #0E70B9;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 4px;
+}

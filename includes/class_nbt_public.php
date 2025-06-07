@@ -843,10 +843,10 @@ class nbtPublic{
 		add_action( 'init', [$this, 'remove_bacs_from_thank_you_page'], 100 );
 		add_filter('woocommerce_email_headers', [$this, 'add_cc_bcc_to_on_hold_order_emails'], 10, 3);
 		add_filter('woocommerce_cart_item_name', [$this, 'remove_description_from_cart'], 50, 3);
-		add_action('wp_footer', [$this, 'nbt_location_selector_global'], 1);
 		add_action('woocommerce_checkout_before_payment_methods', [$this, 'show_pickup_details_checkout'], 25);
 		add_action('woocommerce_checkout_after_customer_details', [$this, 'show_pickup_details_checkout_alternative'], 10);
 		add_shortcode('nbt_pickup_details', [$this, 'nbt_pickup_details_shortcode']);
+		add_shortcode('nbt_location_selector', [$this, 'nbt_location_selector_shortcode']);
 		add_filter('woocommerce_cart_needs_shipping', [$this, 'hide_shipping_methods_on_checkout'], 20);
 		add_filter('woocommerce_checkout_fields', [$this, 'make_phone_field_required'], 20);
 		add_action('woocommerce_cart_totals_before_order_total', [$this, 'show_pickup_details_cart'], 5);
@@ -1250,7 +1250,9 @@ class nbtPublic{
             $empty_template = NBT_DIR . '/templates/empty-template.php';
             if (file_exists($empty_template)) {
                 return $empty_template;
-            }
+            } else {
+				error_log('[NBT] Empty template not found: ' . $empty_template);
+			}
         }
         return $template;
     }
@@ -1274,5 +1276,26 @@ class nbtPublic{
             unset($items['edit-address']);
         }
         return $items;
+    }
+
+    /**
+     * Shortcode for location selector dropdown
+     */
+    public function nbt_location_selector_shortcode($atts) {
+        if (!function_exists('get_locations')) return '';
+        $locations = get_locations();
+        $current_location = isset($_POST['location_price']) ? $_POST['location_price'] : (isset($_COOKIE['location_price']) ? $_COOKIE['location_price'] : '');
+        if (empty($locations)) return '';
+        ob_start();
+        ?>
+        <form id="nbt-location-selector-form" method="post" style="display:inline;">
+            <select name="location_price" class="nbt-location-selector">
+                <?php foreach($locations as $key => $value): ?>
+                    <option value="<?php echo esc_attr($key); ?>" <?php selected($current_location, $key); ?>><?php echo esc_html($value); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+        <?php
+        return ob_get_clean();
     }
 }
