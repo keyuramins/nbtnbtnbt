@@ -859,6 +859,8 @@ class nbtPublic{
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
 		add_action('woocommerce_email', [$this, 'remove_email_addresses'], 10, 1);
 		#remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_customer_details', 10 );
+		// Remove billing address from WooCommerce emails
+		add_filter('woocommerce_email_customer_details_fields', array($this, 'nbt_unset_billing_from_email_fields'), 10, 3);
 	}	
 
 	// Remove entire addresses section from order table
@@ -1262,5 +1264,15 @@ class nbtPublic{
             unset($items['edit-address']);
         }
         return $items;
+    }
+
+    /**
+     * Unset billing address fields from WooCommerce emails
+     */
+    public function nbt_unset_billing_from_email_fields($fields, $sent_to_admin, $order) {
+        if (isset($fields['billing'])) {
+            unset($fields['billing']);
+        }
+        return $fields;
     }
 }
