@@ -1260,8 +1260,9 @@ class nbtPublic{
             $email_addresses_template = NBT_DIR . '/woocommerce/templates/emails/email-addresses.php';
             if (file_exists($email_addresses_template)) {
                 return $email_addresses_template;
-				error_log('[NBT] Loaded: ' . $email_addresses_template);
-            }
+            } else {
+				error_log('[NBT] Email addresses template not found: ' . $email_addresses_template);
+			}
         }
         return $template;
     }
