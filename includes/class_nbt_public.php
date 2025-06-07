@@ -23,6 +23,8 @@ class nbtPublic{
         $this->current_locations = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
         // Add filter to hide billing details on order details page
         add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_details_order_page'), 99, 3);
+        // Add filter to remove billing address from WooCommerce emails
+        add_filter('woocommerce_order_formatted_billing_address', array($this, 'remove_billing_from_emails'), 10, 2);
     }
 
 	function nbt_scripts() {
@@ -1250,5 +1252,16 @@ class nbtPublic{
             }
         }
         return $template;
+    }
+
+    /**
+     * Remove billing address from WooCommerce emails
+     */
+    public function remove_billing_from_emails($address, $order) {
+        // Check if we're in email context
+        if (did_action('woocommerce_email_header') && !did_action('woocommerce_email_footer')) {
+            return array(); // Return empty array to hide billing
+        }
+        return $address;
     }
 }
