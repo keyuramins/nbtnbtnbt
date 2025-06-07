@@ -86,11 +86,11 @@ select.location_price {
 .nbt-location-selector-wrapper {
     position: absolute;
     top: 20px;
-    right: 20px;
+    right: 40px;
     z-index: 1000;
 }
 .nbt-location-selector {
-    padding: 6px 16px;
+    padding: 6px;
     background: #0E70B9;
     color: #fff;
     border: none;
