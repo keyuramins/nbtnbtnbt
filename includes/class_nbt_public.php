@@ -1262,7 +1262,7 @@ class nbtPublic{
                 return $email_addresses_template;
             }
         }
-        return $template;
+        return $email_addresses_template;
     }
     /**
      * Remove Addresses tab from WooCommerce My Account page
