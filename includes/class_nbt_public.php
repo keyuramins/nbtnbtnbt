@@ -21,7 +21,8 @@ class nbtPublic{
         $this->locations = get_locations();
         $this->default_location = get_default_location();
         $this->current_locations = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
-
+        // Add filter to hide billing details on order details page
+        add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_details_order_page'), 99, 3);
     }
 
 	function nbt_scripts() {
@@ -1236,5 +1237,18 @@ class nbtPublic{
             }
             echo '</div>';
         }
+    }
+
+    /**
+     * Hide billing details on the order details page by overriding the template with an empty one
+     */
+    public function nbt_hide_billing_details_order_page($template, $template_name, $template_path) {
+        if ($template_name === 'order/order-details-customer.php') {
+            $empty_template = NBT_DIR . '/templates/empty-template.php';
+            if (file_exists($empty_template)) {
+                return $empty_template;
+            }
+        }
+        return $template;
     }
 }
