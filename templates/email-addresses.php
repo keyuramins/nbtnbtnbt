@@ -20,7 +20,10 @@ use Automattic\WooCommerce\Utilities\FeaturesUtil;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-$address  = $order->get_formatted_billing_address();
-$shipping = $order->get_formatted_shipping_address();
-$email_improvements_enabled = FeaturesUtil::feature_is_enabled( 'email_improvements' );
 ?>
+<div style="display: none;">
+    <h2>Billing Address</h2>
+    <p>
+        <?php echo $order->get_formatted_billing_address(); ?>
+    </p>
+</div>
