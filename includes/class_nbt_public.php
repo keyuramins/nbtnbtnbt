@@ -23,7 +23,8 @@ class nbtPublic{
         $this->current_locations = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
         // Add filter to hide billing details on order details page
         add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_details_order_page'), 99, 3);
-        // Remove Addresses tab from My Account
+		add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_details_from_emails'), 99, 3);
+		// Remove Addresses tab from My Account
         add_filter('woocommerce_account_menu_items', array($this, 'nbt_remove_my_account_addresses_tab'), 99);
     }
 
@@ -852,14 +853,13 @@ class nbtPublic{
 		add_filter('woocommerce_email_order_meta_fields', [$this, 'add_pickup_date_and_address_to_email'], 10, 3);
 		add_filter('woocommerce_email_customer_details_heading', [$this, 'customize_email_customer_details_heading'], 10, 2);
 		add_filter('woocommerce_email_customer_details_fields', [$this, 'customize_email_customer_details_fields'], 10, 3);
-		add_filter('woocommerce_email_show_billing_address', '__return_false', 100);
-		add_action('woocommerce_email', array($this, 'nbt_force_remove_billing_address_email'), 20);
+		add_filter('woocommerce_email_show_billing_address', '__return_false');
+		add_filter('woocommerce_email_get_billing_address', '__return_false');
+		#add_filter('woocommerce_order_get_formatted_billing_address', '__return_empty_string');
 		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_on_order_page'], 10, 1);
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
 		add_action('woocommerce_email', [$this, 'remove_email_addresses'], 10, 1);
 		#remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_customer_details', 10 );
-		// Remove billing address from WooCommerce emails
-		add_filter('woocommerce_email_customer_details_fields', array($this, 'nbt_unset_billing_from_email_fields'), 999, 3);
 	}	
 
 	// Remove entire addresses section from order table
@@ -1255,6 +1255,15 @@ class nbtPublic{
         return $template;
     }
 
+	public function nbt_hide_billing_details_from_emails($template, $template_name) {
+        if ($template_name === 'emails/email-addresses.php') {
+            $empty_template = NBT_DIR . '/templates/empty-template.php';
+            if (file_exists($empty_template)) {
+                return $empty_template;
+            }
+        }
+        return $template;
+    }
     /**
      * Remove Addresses tab from WooCommerce My Account page
      */
@@ -1263,22 +1272,5 @@ class nbtPublic{
             unset($items['edit-address']);
         }
         return $items;
-    }
-
-    /**
-     * Unset billing address fields from WooCommerce emails
-     */
-    public function nbt_unset_billing_from_email_fields($fields, $sent_to_admin, $order) {
-        if (isset($fields['billing'])) {
-            unset($fields['billing']);
-        }
-        return $fields;
-    }
-
-    /**
-     * Forcibly remove billing address from WooCommerce emails
-     */
-    public function nbt_force_remove_billing_address_email($email_class) {
-        remove_action('woocommerce_email_customer_details', array($email_class, 'customer_billing_address'), 10);
     }
 }
