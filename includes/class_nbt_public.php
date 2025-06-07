@@ -852,9 +852,8 @@ class nbtPublic{
 		add_filter('woocommerce_email_order_meta_fields', [$this, 'add_pickup_date_and_address_to_email'], 10, 3);
 		add_filter('woocommerce_email_customer_details_heading', [$this, 'customize_email_customer_details_heading'], 10, 2);
 		add_filter('woocommerce_email_customer_details_fields', [$this, 'customize_email_customer_details_fields'], 10, 3);
-		add_filter('woocommerce_email_show_billing_address', '__return_false');
-		add_filter('woocommerce_email_get_billing_address', '__return_false');
-		#add_filter('woocommerce_order_get_formatted_billing_address', '__return_empty_string');
+		add_filter('woocommerce_email_show_billing_address', '__return_false', 100);
+		add_action('woocommerce_email', array($this, 'nbt_force_remove_billing_address_email'), 20);
 		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_on_order_page'], 10, 1);
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
 		add_action('woocommerce_email', [$this, 'remove_email_addresses'], 10, 1);
@@ -1274,5 +1273,12 @@ class nbtPublic{
             unset($fields['billing']);
         }
         return $fields;
+    }
+
+    /**
+     * Forcibly remove billing address from WooCommerce emails
+     */
+    public function nbt_force_remove_billing_address_email($email_class) {
+        remove_action('woocommerce_email_customer_details', array($email_class, 'customer_billing_address'), 10);
     }
 }
