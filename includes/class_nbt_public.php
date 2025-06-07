@@ -1255,14 +1255,15 @@ class nbtPublic{
         return $template;
     }
 
-	public function nbt_hide_billing_details_from_emails($template, $template_name) {
+	public function nbt_hide_billing_details_from_emails($template, $template_name, $template_path) {
         if ($template_name === 'emails/email-addresses.php') {
             $email_addresses_template = NBT_DIR . '/woocommerce/templates/emails/email-addresses.php';
             if (file_exists($email_addresses_template)) {
                 return $email_addresses_template;
+				error_log('[NBT] Loaded: ' . $email_addresses_template);
             }
         }
-        return $email_addresses_template;
+        return $template;
     }
     /**
      * Remove Addresses tab from WooCommerce My Account page
