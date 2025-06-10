@@ -252,9 +252,9 @@ class nbtPublic{
 	        //     }      
 	    	// }
 
-	         if (isset($_POST['location_price']) && $_POST['location_price'] == 'sydney') {
-		            setcookie('location_price', $_POST['location_price'], time() + 864000, "/"); //3 days cookie
-		        }
+	        //  if (isset($_POST['location_price']) && $_POST['location_price'] == 'sydney') {
+		    //         setcookie('location_price', $_POST['location_price'], time() + 864000, "/"); //3 days cookie
+		    //     }
 	    }
 	   
 	    return $price ;
