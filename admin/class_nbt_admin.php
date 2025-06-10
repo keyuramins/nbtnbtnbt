@@ -81,14 +81,14 @@ class nbtAdmin{
 				    woocommerce_wp_text_input(array(
 				        'id' => '_'.$key.'_price[' . $variation->ID . ']',
 				        'class' => 'short',
-				        'label' => __($value.'1 Price', 'woocommerce'),
+				        'label' => __($value.' Price', 'woocommerce'),
 				        'value' => get_post_meta($variation->ID, '_'.$key.'_price', true),
 				        'wrapper_class' => 'form-row form-row-first',
 				    ));
 				    woocommerce_wp_text_input(array(
 				        'id' => '_'.$key.'_sale_price[' . $variation->ID . ']',
 				        'class' => 'short',
-				        'label' => __($value.'2 Sale Price', 'woocommerce'),
+				        'label' => __($value.' Sale Price', 'woocommerce'),
 				        'value' => get_post_meta($variation->ID, '_'.$key.'_sale_price', true),
 				        'wrapper_class' => 'form-row form-row-last',
 				    ));
@@ -142,12 +142,12 @@ class nbtAdmin{
 
 	        // For "Regular price" text
 	        if ( is_admin() && in_array( $pagenow, ['post.php', 'post-new.php'] ) && 'product' === $post_type && 'Regular price' === $text && 'woocommerce' === $domain ) {
-                $translated_text = __( $default_locations . '3 price', $domain );
+                $translated_text = __( $default_locations . ' price', $domain );
      
 
 		        // For "Sale price" text
 	        } elseif ( is_admin() && in_array( $pagenow, ['post.php', 'post-new.php'] ) && 'product' === $post_type && 'Sale price' === $text && 'woocommerce' === $domain ) {
-  	          	$translated_text = __( $default_locations . '4 Sale price', $domain );
+  	          	$translated_text = __( $default_locations . ' Sale price', $domain );
         	}
     	}
 	    return $translated_text;
