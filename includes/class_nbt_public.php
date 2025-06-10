@@ -24,6 +24,7 @@ class nbtPublic{
         // Add filter to hide billing details on order details page
         add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_details_order_page'), 99, 3);
 		add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_details_from_emails'), 99, 3);
+		add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_in_dashboard'), 99, 3);
 		// Remove Addresses tab from My Account
         add_filter('woocommerce_account_menu_items', array($this, 'nbt_remove_my_account_addresses_tab'), 99);
     }
@@ -1264,6 +1265,18 @@ class nbtPublic{
                 return $email_addresses_template;
             } else {
 				error_log('[NBT] Email addresses template not found: ' . $email_addresses_template);
+			}
+        }
+        return $template;
+    }
+
+	public function nbt_hide_billing_in_dashboard($template, $template_name, $template_path) {
+        if ($template_name === 'myaccount/dashboard.php') {
+            $dashboard_template = NBT_DIR . '/woocommerce/templates/myaccount/dashboard.php';
+            if (file_exists($dashboard_template)) {
+                return $dashboard_template;
+            } else {
+				error_log('[NBT] Dashboard template not found: ' . $dashboard_template);
 			}
         }
         return $template;
