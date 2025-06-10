@@ -36,39 +36,37 @@ class nbtAdmin{
 	}
 
 	function woocommerce_simple_product_custom_fields(){
-	    // Access the global $woocommerce and $post variables. 
-	    // $woocommerce is the main instance of the WooCommerce class, and $post is the current post object.
-	    global $woocommerce, $post;
-	    $product = wc_get_product($post->ID);
-	    // Only show for simple products
-	    if ($product && $product->is_type('simple')) {
-	        echo '<div class="product_custom_field">';
-	        if(!empty($this->locations)){
-	            $locations = $this->locations;
-	            unset($locations[$this->default_locations]);
-	            foreach($locations as $key => $value){
-	                if ($key != ''){    
-	                    woocommerce_wp_text_input(
-	                    array(
-	                    'id' => '_'.$key.'_price',
-	                    'placeholder' => $value.' Price',
-	                    'label' => __( $value.' Price ($)', 'woocommerce'),
-	                    'desc_tip' => 'true'
-	                    )
-	                    );
-	                    woocommerce_wp_text_input(
-	                    array(
-	                    'id' =>  '_'.$key.'_sale_price',
-	                    'placeholder' => $value.' Sale Price',
-	                    'label' => __($value.' Sale Price ($)', 'woocommerce'),
-	                    'desc_tip' => 'true'
-	                    )
-	                    );
-	                }           
-	            }
-	        }
-	        echo '</div>';
-	    }
+	    // global $woocommerce, $post;
+	    // $product = wc_get_product($post->ID);
+	    // // Only show for simple products
+	    // if ($product && $product->is_type('simple')) {
+	    //     echo '<div class="product_custom_field">';
+	    //     if(!empty($this->locations)){
+	    //         $locations = $this->locations;
+	    //         unset($locations[$this->default_locations]);
+	    //         foreach($locations as $key => $value){
+	    //             if ($key != ''){    
+	    //                 woocommerce_wp_text_input(
+	    //                 array(
+	    //                 'id' => '_'.$key.'_price',
+	    //                 'placeholder' => $value.' Price',
+	    //                 'label' => __( $value.' Price ($)', 'woocommerce'),
+	    //                 'desc_tip' => 'true'
+	    //                 )
+	    //                 );
+	    //                 woocommerce_wp_text_input(
+	    //                 array(
+	    //                 'id' =>  '_'.$key.'_sale_price',
+	    //                 'placeholder' => $value.' Sale Price',
+	    //                 'label' => __($value.' Sale Price ($)', 'woocommerce'),
+	    //                 'desc_tip' => 'true'
+	    //                 )
+	    //                 );
+	    //             }           
+	    //         }
+	    //     }
+	    //     echo '</div>';
+	    // }
 	}
 
 	//Adds price labels for variable products for locations in variations panel
