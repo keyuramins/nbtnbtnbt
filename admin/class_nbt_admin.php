@@ -171,7 +171,7 @@ class nbtAdmin{
 		add_action('woocommerce_save_product_variation', [$this, 'save_variable_product_price_fields'], 20, 2);	
 		add_filter('gettext', [$this, 'change_backend_product_regular_price'], 50, 3 );
 		add_filter('woocommerce_payment_gateways', [$this, 'nbt_add_bacs_payment_gateway']);
-		#add_action('admin_enqueue_scripts', [$this, 'nbt_admin_enqueue_scripts']);
+		add_action('admin_enqueue_scripts', [$this, 'nbt_admin_enqueue_scripts']);
 
 	}	
 

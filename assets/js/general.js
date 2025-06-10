@@ -69,28 +69,4 @@ jQuery( document ).ready(function($) {
     $(document).on('change', '.nbt-location-selector', function() {
         $('#nbt-location-selector-form').submit();
     });
-
-    // Admin: Change variation price field labels to use default location name
-    if (typeof nbtDefaultLocation !== 'undefined' && nbtDefaultLocation) {
-        function updateVariationPriceLabels() {
-            var defaultLocation = nbtDefaultLocation;
-            // For each variation panel
-            $(".woocommerce_variation").each(function() {
-                // Regular price
-                $(this).find('label[for^="variable_regular_price_"]').each(function() {
-                    var label = $(this);
-                    label.text(defaultLocation + ' Price ($)');
-                });
-                // Sale price
-                $(this).find('label[for^="variable_sale_price_"]').each(function() {
-                    var label = $(this);
-                    label.text(defaultLocation + ' Sale Price ($)');
-                });
-            });
-        }
-        // Initial run
-        updateVariationPriceLabels();
-        // Also run after variations are loaded/changed
-        $(document).on('woocommerce_variations_loaded woocommerce_variations_added', updateVariationPriceLabels);
-    }
 });
