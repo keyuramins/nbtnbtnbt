@@ -168,19 +168,5 @@ class nbtAdmin{
 		add_action('woocommerce_save_product_variation', [$this, 'save_variable_product_price_fields'], 20, 2);	
 		add_filter('gettext', [$this, 'change_backend_product_regular_price'], 50, 3 );
 		add_filter('woocommerce_payment_gateways', [$this, 'nbt_add_bacs_payment_gateway']);
-		add_action('admin_enqueue_scripts', [$this, 'nbt_admin_enqueue_scripts']);
-
 	}	
-
-	public function nbt_admin_enqueue_scripts($hook) {
-		// Only enqueue on product edit screens
-		if ($hook === 'post.php' || $hook === 'post-new.php') {
-			global $post;
-			if ($post && $post->post_type === 'product') {
-				$default_location = isset($this->locations[$this->default_locations]) ? $this->locations[$this->default_locations] : '';
-				wp_add_inline_script('jquery', 'var nbtDefaultLocation = ' . json_encode($default_location) . ';', 'before');
-			}
-		}
-	}
-
 }
