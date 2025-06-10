@@ -71,10 +71,8 @@ class nbtAdmin{
 	    }
 	}
 
-
-	// Variable product add fields for sydney Price
+	//Adds price labels for variable products for locations in variations panel
 	function woocommerce_variable_product_custom_fields($loop, $variation_data, $variation) {
-	    // Display fields for Sydney price and sale price
 	    if(!empty($this->locations)){
 	    	$locations = $this->locations;
 	    	unset($locations[$this->default_locations]);
@@ -83,14 +81,14 @@ class nbtAdmin{
 				    woocommerce_wp_text_input(array(
 				        'id' => '_'.$key.'_price[' . $variation->ID . ']',
 				        'class' => 'short',
-				        'label' => __($value.' Price', 'woocommerce'),
+				        'label' => __($value.'1 Price', 'woocommerce'),
 				        'value' => get_post_meta($variation->ID, '_'.$key.'_price', true),
 				        'wrapper_class' => 'form-row form-row-first',
 				    ));
 				    woocommerce_wp_text_input(array(
 				        'id' => '_'.$key.'_sale_price[' . $variation->ID . ']',
 				        'class' => 'short',
-				        'label' => __($value.' Sale Price', 'woocommerce'),
+				        'label' => __($value.'2 Sale Price', 'woocommerce'),
 				        'value' => get_post_meta($variation->ID, '_'.$key.'_sale_price', true),
 				        'wrapper_class' => 'form-row form-row-last',
 				    ));
@@ -99,7 +97,7 @@ class nbtAdmin{
 	    }
 	}
 
-
+	//saves the custom price and sale price for each location
 	function woocommerce_product_custom_fields_save($post_id){
     	if(!empty($this->locations)){
 	    	$locations = $this->locations;
@@ -107,11 +105,9 @@ class nbtAdmin{
 	    	foreach($locations as $key => $value){
 	    		if ($key != ''){
 				    $_price = $_POST['_'.$key.'_price'];
-				    // Checks if the Sydney Price field is not empty.
 				    if (!empty($_price)){
 				        update_post_meta($post_id, '_'.$key.'_price', esc_attr($_price));
 				    }
-				    // Retrieves the value of the custom Sydney Sale Price field from the $_POST superglobal.
 				    $_sale_price = $_POST['_'.$key.'_sale_price'];
 				   	update_post_meta($post_id, '_'.$key.'_sale_price', $_POST['_'.$key.'_sale_price']);
 				}
@@ -119,6 +115,7 @@ class nbtAdmin{
 	   	}
 	}
 
+	//saves the custom price and sale price for each location in variations panel
 	function save_variable_product_price_fields($variation_id, $i) {
 	    if(!empty($this->locations)){
 	    	$locations = $this->locations;
@@ -126,7 +123,6 @@ class nbtAdmin{
 
 	    	foreach($locations as $key => $value){
 	    		if ($key != ''){
-				    // Save Sydney price and sale price
 				   $price = isset($_POST['_'.$key.'_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_price'][$variation_id]) : '';
 				    $sale_price = isset($_POST['_'.$key.'_sale_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_sale_price'][$variation_id]) : '';
 				
@@ -137,7 +133,7 @@ class nbtAdmin{
 		}		
 	}
 
-
+	//changes the backend product regular and sale price labels to the default location name
 	function change_backend_product_regular_price( $translated_text, $text, $domain ) {
 	   	global $pagenow, $post_type;
     	// Check if default locations and the key exist before accessing them
@@ -146,22 +142,24 @@ class nbtAdmin{
 
 	        // For "Regular price" text
 	        if ( is_admin() && in_array( $pagenow, ['post.php', 'post-new.php'] ) && 'product' === $post_type && 'Regular price' === $text && 'woocommerce' === $domain ) {
-                $translated_text = __( $default_locations . ' price', $domain );
+                $translated_text = __( $default_locations . '3 price', $domain );
      
 
 		        // For "Sale price" text
 	        } elseif ( is_admin() && in_array( $pagenow, ['post.php', 'post-new.php'] ) && 'product' === $post_type && 'Sale price' === $text && 'woocommerce' === $domain ) {
-  	          	$translated_text = __( $default_locations . ' Sale price', $domain );
+  	          	$translated_text = __( $default_locations . '4 Sale price', $domain );
         	}
     	}
 	    return $translated_text;
 	}
 
+	//adds the bacs payment gateway
 	function nbt_add_bacs_payment_gateway($gateways) {
 	    $gateways[] = 'WC_Gateway_BACS_NBT';
 	    return $gateways;
 	}
 
+	//initializes the class
 	function init(){       
 		add_filter('yith_wapo_save_addon_settings', [$this, 'nbt_wapo_save_addon_settings'], 20, 2);
 		add_action('woocommerce_product_options_pricing', [$this, 'woocommerce_simple_product_custom_fields'], 20 );
