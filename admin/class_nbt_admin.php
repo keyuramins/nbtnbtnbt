@@ -39,33 +39,36 @@ class nbtAdmin{
 	    // Access the global $woocommerce and $post variables. 
 	    // $woocommerce is the main instance of the WooCommerce class, and $post is the current post object.
 	    global $woocommerce, $post;
-	    // Start of the custom field section.
-	    echo '<div class="product_custom_field">';
-	    	if(!empty($this->locations)){
-		    	$locations = $this->locations;
-		    	unset($locations[$this->default_locations]);
-		    	foreach($locations as $key => $value){
-		    		if ($key != ''){	
-		    			woocommerce_wp_text_input(
-					        array(
-					            'id' => '_'.$key.'_price', // The ID of the field, used to retrieve the value later.
-					            'placeholder' => $value.' Price', // Placeholder text for the input field.
-					            'label' => __( $value.' Price ($)', 'woocommerce'), // The label for the field.
-					            'desc_tip' => 'true' // Whether to display a tooltip with the description.
-					        )
-					    );
-					    woocommerce_wp_text_input(
-					        array(
-					            'id' =>  '_'.$key.'_sale_price',
-					            'placeholder' => $value.' Sale Price',
-					            'label' => __($value.' Sale Price ($)', 'woocommerce'),
-					            'desc_tip' => 'true'
-					        )
-					    );
-		    		}    		
-	    		}
-		    }
-	    echo '</div>';
+	    $product = wc_get_product($post->ID);
+	    // Only show for simple products
+	    if ($product && $product->is_type('simple')) {
+	        echo '<div class="product_custom_field">';
+	        if(!empty($this->locations)){
+	            $locations = $this->locations;
+	            unset($locations[$this->default_locations]);
+	            foreach($locations as $key => $value){
+	                if ($key != ''){    
+	                    woocommerce_wp_text_input(
+	                    array(
+	                    'id' => '_'.$key.'_price',
+	                    'placeholder' => $value.' Price',
+	                    'label' => __( $value.' Price ($)', 'woocommerce'),
+	                    'desc_tip' => 'true'
+	                    )
+	                    );
+	                    woocommerce_wp_text_input(
+	                    array(
+	                    'id' =>  '_'.$key.'_sale_price',
+	                    'placeholder' => $value.' Sale Price',
+	                    'label' => __($value.' Sale Price ($)', 'woocommerce'),
+	                    'desc_tip' => 'true'
+	                    )
+	                    );
+	                }           
+	            }
+	        }
+	        echo '</div>';
+	    }
 	}
 
 
@@ -160,7 +163,6 @@ class nbtAdmin{
 	}
 
 	function init(){       
-
 		add_filter('yith_wapo_save_addon_settings', [$this, 'nbt_wapo_save_addon_settings'], 20, 2);
 		add_action('woocommerce_product_options_pricing', [$this, 'woocommerce_simple_product_custom_fields'], 20 );
 		add_action('woocommerce_variation_options_pricing',  [$this, 'woocommerce_variable_product_custom_fields'], 20, 3);
@@ -168,7 +170,5 @@ class nbtAdmin{
 		add_action('woocommerce_save_product_variation', [$this, 'save_variable_product_price_fields'], 20, 2);	
 		add_filter('gettext', [$this, 'change_backend_product_regular_price'], 50, 3 );
 		add_filter('woocommerce_payment_gateways', [$this, 'nbt_add_bacs_payment_gateway']);
-
-	}	
-
+	}
 }
