@@ -118,18 +118,12 @@ class nbtPublic{
 	    		}else{
 	    			$regular_price = $product->get_regular_price();
 					$sale_price = $product->get_sale_price();
-	    		}	    
-
+	    		}
 		        if (isset($sale_price) && $sale_price > 0) {
-		            // Sydney specific sale price format.
 		            return sprintf('<del>%s</del> &nbsp;<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price), wc_price($sale_price));
 		        } else if($regular_price > 0) {
-		            // Sydney specific regular price format.
 		            return sprintf('<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price));
 		        }
-		   
-
-
 			}
 	        elseif($product && $product->is_type('variation')){
 	        	if($this->current_locations != $this->default_location){
@@ -140,11 +134,9 @@ class nbtPublic{
 					$sale_price = $product->get_sale_price();
 	            }
 	             if (!empty($sale_price)) {
-	                // Sydney specific sale price format.
 	                $suffix = $product->get_price_suffix($price);
 		        	return wc_format_sale_price($regular_price, $sale_price).$suffix;
 	            } elseif(!empty($sale_price)) {
-	                // Sydney specific regular price format.
 	                return sprintf('<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price));
 	            }else{
 	                return $price;
