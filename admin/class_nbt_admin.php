@@ -164,7 +164,7 @@ class nbtAdmin{
 		add_action('woocommerce_variation_options_pricing',  [$this, 'woocommerce_variable_product_custom_fields'], 20, 3);
 		add_action('woocommerce_process_product_meta', [$this, 'woocommerce_product_custom_fields_save']);
 		add_action('woocommerce_save_product_variation', [$this, 'save_variable_product_price_fields'], 20, 2);	
-		add_filter('gettext', [$this, 'change_backend_product_regular_price'], 50, 3 );
+		#add_filter('gettext', [$this, 'change_backend_product_regular_price'], 50, 3 );
 		add_filter('woocommerce_payment_gateways', [$this, 'nbt_add_bacs_payment_gateway']);
 	}
 }
