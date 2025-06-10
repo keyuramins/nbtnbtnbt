@@ -168,3 +168,14 @@ class nbtAdmin{
 		add_filter('woocommerce_payment_gateways', [$this, 'nbt_add_bacs_payment_gateway']);
 	}
 }
+
+// Hide Regular price and Sale price fields in General tab for variable products
+add_action('admin_head', function() {
+    global $post;
+    if ($post && get_post_type($post) === 'product') {
+        $product = wc_get_product($post->ID);
+        if ($product && $product->is_type('variable')) {
+            echo '<style>.options_group.pricing { display: none !important; }</style>';
+        }
+    }
+});
