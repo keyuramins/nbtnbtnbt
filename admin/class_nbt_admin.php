@@ -133,23 +133,23 @@ class nbtAdmin{
 
 	//changes the backend product regular and sale price labels to the default location name
 	function change_backend_product_regular_price( $translated_text, $text, $domain ) {
-	//    	global $pagenow, $post_type;
-    // 	// Check if default locations and the key exist before accessing them
-	//     if (isset($this->default_locations) && $this->default_locations != ''  && isset($this->locations[$this->default_locations]) && $this->locations[$this->default_locations] != '') {
- 	// 		$default_locations = $this->locations[$this->default_locations];
+	   	// global $pagenow, $post_type;
+    	// // Check if default locations and the key exist before accessing them
+	    // if (isset($this->default_locations) && $this->default_locations != ''  && isset($this->locations[$this->default_locations]) && $this->locations[$this->default_locations] != '') {
+ 		// 	$default_locations = $this->locations[$this->default_locations];
 
-	//         // For "Regular price" text
-	//         if ( is_admin() && in_array( $pagenow, ['post.php', 'post-new.php'] ) && 'product' === $post_type && 'Regular price' === $text && 'woocommerce' === $domain ) {
-    //             $translated_text = __( $default_locations . ' price', $domain );
+	    //     // For "Regular price" text
+	    //     if ( is_admin() && in_array( $pagenow, ['post.php', 'post-new.php'] ) && 'product' === $post_type && 'Regular price' === $text && 'woocommerce' === $domain ) {
+        //         $translated_text = __( $default_locations . ' price', $domain );
      
 
-	// 	        // For "Sale price" text
-	//         } elseif ( is_admin() && in_array( $pagenow, ['post.php', 'post-new.php'] ) && 'product' === $post_type && 'Sale price' === $text && 'woocommerce' === $domain ) {
-  	//           	$translated_text = __( $default_locations . ' Sale price', $domain );
-    //     	}
-    // 	}
-	//     return $translated_text;
-	 }
+		//         // For "Sale price" text
+	    //     } elseif ( is_admin() && in_array( $pagenow, ['post.php', 'post-new.php'] ) && 'product' === $post_type && 'Sale price' === $text && 'woocommerce' === $domain ) {
+  	    //       	$translated_text = __( $default_locations . ' Sale price', $domain );
+        // 	}
+    	// }
+	    // return $translated_text;
+	}
 
 	//adds the bacs payment gateway
 	function nbt_add_bacs_payment_gateway($gateways) {
@@ -164,7 +164,7 @@ class nbtAdmin{
 		add_action('woocommerce_variation_options_pricing',  [$this, 'woocommerce_variable_product_custom_fields'], 20, 3);
 		add_action('woocommerce_process_product_meta', [$this, 'woocommerce_product_custom_fields_save']);
 		add_action('woocommerce_save_product_variation', [$this, 'save_variable_product_price_fields'], 20, 2);	
-		#add_filter('gettext', [$this, 'change_backend_product_regular_price'], 50, 3 );
+		//add_filter('gettext', [$this, 'change_backend_product_regular_price'], 50, 3 );
 		add_filter('woocommerce_payment_gateways', [$this, 'nbt_add_bacs_payment_gateway']);
 	}
 }
