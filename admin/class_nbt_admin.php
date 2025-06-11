@@ -49,6 +49,7 @@ class nbtAdmin{
 	                    woocommerce_wp_text_input(
 	                    array(
 	                    'id' => '_'.$key.'_price',
+						'name' => '_'.$key.'_price',
 	                    'placeholder' => $value.' Price',
 	                    'label' => __( $value.' Price ($)', 'woocommerce'),
 	                    'desc_tip' => 'true'
@@ -57,6 +58,7 @@ class nbtAdmin{
 	                    woocommerce_wp_text_input(
 	                    array(
 	                    'id' =>  '_'.$key.'_sale_price',
+						'name' => '_'.$key.'_sale_price',
 	                    'placeholder' => $value.' Sale Price',
 	                    'label' => __($value.' Sale Price ($)', 'woocommerce'),
 	                    'desc_tip' => 'true'
@@ -78,6 +80,7 @@ class nbtAdmin{
 	    		if ($key != ''){
 				    woocommerce_wp_text_input(array(
 				        'id' => '_'.$key.'_price[' . $variation->ID . ']',
+						'name' => '_'.$key.'_price[' . $variation->ID . ']',
 				        'class' => 'short',
 				        'label' => __($value.' Price', 'woocommerce'),
 				        'value' => get_post_meta($variation->ID, '_'.$key.'_price', true),
@@ -85,6 +88,7 @@ class nbtAdmin{
 				    ));
 				    woocommerce_wp_text_input(array(
 				        'id' => '_'.$key.'_sale_price[' . $variation->ID . ']',
+						'name' => '_'.$key.'_sale_price[' . $variation->ID . ']',
 				        'class' => 'short',
 				        'label' => __($value.' Sale Price', 'woocommerce'),
 				        'value' => get_post_meta($variation->ID, '_'.$key.'_sale_price', true),
@@ -114,16 +118,20 @@ class nbtAdmin{
 	    	unset($locations[$this->default_locations]);
 	    	foreach($locations as $key => $value){
 	    		if ($key != ''){
-			    $_price = $_POST['_'.$key.'_price'];
-			    if (!empty($_price)){
-			        update_post_meta($post_id, '_'.$key.'_price', esc_attr($_price));
-                    error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_price=$_price");
-			    }
-			    $_sale_price = $_POST['_'.$key.'_sale_price'];
-			    if (!empty($_sale_price)) {
-			        update_post_meta($post_id, '_'.$key.'_sale_price', $_sale_price);
-                    error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_sale_price=$_sale_price");
-                }
+			    $_prices = $_POST['_'.$key.'_price'] ?? [];
+				foreach ($_prices as $variation_id => $price) {
+					if (!empty($price)){
+						update_post_meta($post_id, '_'.$key.'_price', esc_attr($price));
+						error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_price=$price");
+					}
+				}
+			    $_sale_prices = $_POST['_'.$key.'_sale_price'] ?? [];
+				foreach ($_sale_prices as $variation_id => $sale_price) {
+					if (!empty($sale_price)){
+						update_post_meta($post_id, '_'.$key.'_sale_price', $sale_price);
+						error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_sale_price=$sale_price");
+					}
+				}
 			}
 		}
 	    }
