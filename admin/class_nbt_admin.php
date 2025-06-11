@@ -116,24 +116,23 @@ class nbtAdmin{
                 }
             }
 	    	unset($locations[$this->default_locations]);
-	    	foreach($locations as $key => $value){
-	    		if ($key != ''){
-			    $_prices = $_POST['_'.$key.'_price'] ?? [];
-				foreach ($_prices as $variation_id => $price) {
-					if (!empty($price)){
-						update_post_meta($post_id, '_'.$key.'_price', esc_attr($price));
-						error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_price=$price");
-					}
-				}
-			    $_sale_prices = $_POST['_'.$key.'_sale_price'] ?? [];
-				foreach ($_sale_prices as $variation_id => $sale_price) {
-					if (!empty($sale_price)){
-						update_post_meta($post_id, '_'.$key.'_sale_price', $sale_price);
-						error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_sale_price=$sale_price");
-					}
-				}
-			}
-		}
+            $product = wc_get_product($post_id);
+            if ($product && $product->is_type('simple')) {
+                foreach($locations as $key => $value){
+                    if ($key != ''){
+                        $_price = $_POST['_'.$key.'_price'] ?? '';
+                        if (!empty($_price)){
+                            update_post_meta($post_id, '_'.$key.'_price', esc_attr($_price));
+                            error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_price=$_price");
+                        }
+                        $_sale_price = $_POST['_'.$key.'_sale_price'] ?? '';
+                        if (!empty($_sale_price)){
+                            update_post_meta($post_id, '_'.$key.'_sale_price', $_sale_price);
+                            error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_sale_price=$_sale_price");
+                        }
+                    }
+                }
+            }
 	    }
 	}
 
