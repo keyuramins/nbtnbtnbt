@@ -42,13 +42,7 @@ class nbtPublic{
 	function btlocation_footer_popup(){
     
 	    if(!empty($this->locations)){
-		    // Check if the 'location_price' cookie is set and its value is either 'melbourne' or 'sydney'.
-		    // If so, it returns early (doesn't show the popup).
-			
 			if(isset($this->current_locations) && in_array($this->current_locations, $this->locations)) return false;
-			
-			// Check if the 'location_price' is posted through a form submission.
-		    // If so, set a cookie with the 'location_price' value that lasts for 10 days and return early.
 			if(isset($this->current_locations ) && $this->current_locations != ''){
 				//setcookie('location_price', $_POST['location_price'], time()+864000, "/"); //10 day cookie
 				return false;
@@ -107,7 +101,7 @@ class nbtPublic{
 
 	function custom_sale_price_display($price, $product) {
 		$location_price = $this->current_locations;
-		$log = "<!-- [NBT LOG] custom_sale_price_display: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} -->\n";
+		$log = "[NBT LOG] custom_sale_price_display: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} \n";
 		echo $log;
 	
 	      	if($product && $product->is_type('simple')){   
@@ -395,7 +389,7 @@ class nbtPublic{
 	
 	function yith_wapo_product_price($price, $product){
 		$location_price = $this->current_locations;
-		$log = "<!-- [NBT LOG] yith_wapo_product_price: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} -->\n";
+		$log = "[NBT LOG] yith_wapo_product_price: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price}\n";
 		echo $log;
 		
 		 if ($this->current_locations != $this->default_location) {
@@ -482,100 +476,86 @@ class nbtPublic{
 	    // Return regular price if not on sale.
 	    return $price;
 	}
-	function yith_wapo_product_price_new($price, $product){
+	function yith_wapo_product_price_new($price, $product) {
 		$location_price = $this->current_locations;
-		$log = "<!-- [NBT LOG] yith_wapo_product_price_new: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} -->\n";
+		$log = "[NBT LOG] yith_wapo_product_price_new: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} \n";
 		echo $log;
 		
-		 if ($this->current_locations != $this->default_location) {
-	    	if($product && $product->is_type('simple')){   
-
-				if($this->current_locations != $this->default_location){
-
-	    			 $regular_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
-		        	$sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
-	    		}else{
-	    			$regular_price = $product->get_regular_price();
+		if ($this->current_locations != $this->default_location) {
+			if ($product && $product->is_type('simple')) {
+				if ($this->current_locations != $this->default_location) {
+					$regular_price = get_post_meta($product->get_id(), '_' . $this->current_locations . '_price', true);
+					$sale_price = get_post_meta($product->get_id(), '_' . $this->current_locations . '_sale_price', true);
+				} else {
+					$regular_price = $product->get_regular_price();
 					$sale_price = $product->get_sale_price();
-	    		}
-		    
+				}
 
-		        if (isset($sale_price) && $sale_price > 0) {
-		            // Sydney specific sale price format.
-		            return sprintf('<del>%s</del> &nbsp;<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price), wc_price($sale_price));
-		        } else if($regular_price > 0) {
-		            // Sydney specific regular price format.
-		            return sprintf('<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price));
-		        }
-	
+				if (isset($sale_price) && $sale_price > 0) {
+					// Sydney specific sale price format.
+					return sprintf('<del>%s</del> &nbsp;<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price), wc_price($sale_price));
+				} else if ($regular_price > 0) {
+					// Sydney specific regular price format.
+					return sprintf('<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price));
+				}
+			} elseif ($product && $product->is_type('variation')) {
+				if ($this->current_locations != $this->default_location) {
+					$regular_price = get_post_meta($product->get_id(), '_' . $this->current_locations . '_price', true);
+					$sale_price = get_post_meta($product->get_id(), '_' . $this->current_locations . '_sale_price', true);
+				} else {
+					$regular_price = $product->get_regular_price();
+					$sale_price = $product->get_sale_price();
+				}
+				if (!empty($sale_price)) {
+					// Sydney specific sale price format.
+					return $sale_price;
+				} elseif (!empty($sale_price)) {
+					// Sydney specific regular price format.
+					return $regular_price;
+				} else {
+					return $price;
+				}
 			}
-	        elseif($product && $product->is_type('variation')){
-	        	if($this->current_locations != $this->default_location){
-	            	$regular_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
-	            	$sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
-	            }else{
-	            	$regular_price = $product->get_regular_price();
-					$sale_price = $product->get_sale_price();
-	            }
-	             if (!empty($sale_price)) {
-	                // Sydney specific sale price format.
-	                return $sale_price;
-	            } elseif(!empty($sale_price)) {
-	                // Sydney specific regular price format.
-	                return $regular_price;
-	            }else{
-	                return $price;
-	            }
-	        }
-			
-		
-	    if($product->is_type('variable')){
-	            
-	            $reg_price = '';
-	            if(!$product->is_on_sale()){
-	                return $price;
-	            } 
-	            if($product->is_type( 'variable' ))
-	            {
-	                $variations = $product->get_children();
-	                $reg_prices = array();
-	                $sale_prices = array();
-	                foreach ($variations as $value) {
-	                $single_variation=new WC_Product_Variation($value);
-	                array_push($reg_prices, $single_variation->get_regular_price());
-	                array_push($sale_prices, $single_variation->get_price());
-	            }
-	            sort($reg_prices);
-	            sort($sale_prices);
 
-	            $min_price = $reg_prices[0];
-	            $max_price = $reg_prices[count($reg_prices)-1];
-	            if($min_price == $max_price)
-	            {
-	                $reg_price = wc_price($min_price);
-	            }
-	            else
-	            {
-	                $reg_price = wc_format_price_range($min_price, $max_price);
-	            }
-	                $min_price = $sale_prices[0];
-	                $max_price = $sale_prices[count($sale_prices)-1];
-	            if($min_price == $max_price)
-	            {
-	                $sale_price = wc_price($min_price);
-	            }
-	            else
-	            {
-	                $sale_price = wc_format_price_range($min_price, $max_price);
-	            }
-	                $suffix = $product->get_price_suffix($price);
-	                return wc_format_sale_price($reg_price, $sale_price).$suffix;
-	            }
-	        }
-	     
-	  
-	    // Return regular price if not on sale.
-	    return $price;
+			if ($product->is_type('variable')) {
+				$reg_price = '';
+				if (!$product->is_on_sale()) {
+					return $price;
+				}
+				if ($product->is_type('variable')) {
+					$variations = $product->get_children();
+					$reg_prices = array();
+					$sale_prices = array();
+					foreach ($variations as $value) {
+						$single_variation = new WC_Product_Variation($value);
+						array_push($reg_prices, $single_variation->get_regular_price());
+						array_push($sale_prices, $single_variation->get_price());
+					}
+					sort($reg_prices);
+					sort($sale_prices);
+
+					$min_price = $reg_prices[0];
+					$max_price = $reg_prices[count($reg_prices) - 1];
+					if ($min_price == $max_price) {
+						$reg_price = wc_price($min_price);
+					} else {
+						$reg_price = wc_format_price_range($min_price, $max_price);
+					}
+					$min_price = $sale_prices[0];
+					$max_price = $sale_prices[count($sale_prices) - 1];
+					if ($min_price == $max_price) {
+						$sale_price = wc_price($min_price);
+					} else {
+						$sale_price = wc_format_price_range($min_price, $max_price);
+					}
+					$suffix = $product->get_price_suffix($price);
+					return wc_format_sale_price($reg_price, $sale_price) . $suffix;
+				}
+			}
+		}
+
+		// Return regular price if not on sale.
+		return $price;
 	}
 	function yith_wapo_total_item_price( $total_item_price, $cart_item ) {
 		
@@ -822,7 +802,7 @@ class nbtPublic{
 		 
 		add_action('wp_footer', [$this, 'btlocation_footer_popup'],20);
 		add_action( 'wp_enqueue_scripts', [$this, 'nbt_scripts'], 50 );
-		add_shortcode("header_location", [$this, "header_location"],10);
+		//add_shortcode("header_location", [$this, "header_location"],10);
 		add_filter( 'woocommerce_get_price_html', [$this,'custom_sale_price_display'], 100, 2 );
 		add_action('init',  [$this, 'location_submit']);
 		add_filter("yith_wapo_product_price", [$this, "yith_wapo_product_price"], 20, 2);
@@ -870,49 +850,49 @@ class nbtPublic{
         $current_location = isset($_POST['location_price']) ? $_POST['location_price'] : (isset($_COOKIE['location_price']) ? $_COOKIE['location_price'] : '');
         if (empty($locations)) return;
         ?>
-        <div class="nbt-location-selector-global-wrapper">
-            <form id="nbt-location-selector-form" method="post">
-                <select name="location_price" class="nbt-location-selector">
-                    <?php foreach($locations as $key => $value): ?>
-                        <option value="<?php echo esc_attr($key); ?>" <?php selected($current_location, $key); ?>><?php echo esc_html($value); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </form>
-        </div>
-        <style>
-        .nbt-location-selector-global-wrapper {
-            position: fixed;
-            top: 20px;
-            right: 40px;
-            z-index: 99999;
-            background: #fff;
-            padding: 8px 12px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .nbt-location-selector-global-wrapper .nbt-location-selector {
-            padding: 6px 16px;
-            background: #0E70B9;
-            color: #fff;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 4px;
-        }
-        @media (max-width: 768px) {
-            .nbt-location-selector-global-wrapper {
-                top: 10px;
-                right: 10px;
-                left: auto;
-                width: auto;
-                margin: 0;
-                padding: 6px 8px;
-            }
-            .nbt-location-selector-global-wrapper .nbt-location-selector {
-                font-size: 18px;
-            }
-        }
-        </style>
+			<div class="nbt-location-selector-global-wrapper">
+				<form id="nbt-location-selector-form" method="post">
+					<select name="location_price" class="nbt-location-selector">
+						<?php foreach($locations as $key => $value): ?>
+							<option value="<?php echo esc_attr($key); ?>" <?php selected($current_location, $key); ?>><?php echo esc_html($value); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</form>
+			</div>
+			<style>
+				.nbt-location-selector-global-wrapper {
+					position: fixed;
+					top: 20px;
+					right: 40px;
+					z-index: 99999;
+					background: #fff;
+					padding: 8px 12px;
+					border-radius: 6px;
+					box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+				}
+				.nbt-location-selector-global-wrapper .nbt-location-selector {
+					padding: 6px 16px;
+					background: #0E70B9;
+					color: #fff;
+					border: none;
+					font-size: 16px;
+					font-weight: 600;
+					border-radius: 4px;
+				}
+				@media (max-width: 768px) {
+					.nbt-location-selector-global-wrapper {
+						top: 10px;
+						right: 10px;
+						left: auto;
+						width: auto;
+						margin: 0;
+						padding: 6px 8px;
+					}
+					.nbt-location-selector-global-wrapper .nbt-location-selector {
+						font-size: 18px;
+					}
+				}
+			</style>
         <?php
     }
 
@@ -989,7 +969,8 @@ class nbtPublic{
             }
             if (!empty($pickup_date)) {
                 echo '<p style="margin: 5px 0;"><strong>Preferred Pickup Date:</strong> ' . esc_html($pickup_date) . '<br><span style="color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span></p>';
-            } else {
+            } 
+			else {
                 // Show input if not set
                 echo '<div class="nbt-pickup-date-row" style="margin-top: 12px;display:flex;flex-direction:column;gap:0;">';
                 echo '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;">';
@@ -1000,36 +981,36 @@ class nbtPublic{
                 echo '<span style="display:block;margin-top:6px;color:#555;font-size:14px;">Pick-up available between 10AM and 4PM</span>';
                 echo '</div>';
                 ?>
-                <script>
-                jQuery(function($){
-                    function addWorkingDays(date, days) {
-                        var count = 0;
-                        var result = new Date(date);
-                        while (count < days) {
-                            result.setDate(result.getDate() + 1);
-                            var day = result.getDay();
-                            if (day !== 0) { count++; }
-                        }
-                        return result;
-                    }
-                    var today = new Date();
-                    var minDate = addWorkingDays(today, 2);
-                    $("#nbt-pickup-date").datepicker({
-                        dateFormat: "dd-mm-yy",
-                        minDate: minDate,
-                        beforeShowDay: function(date){
-                            var day = date.getDay();
-                            return [day != 0, ""];
-                        }
-                    });
-                    $("#nbt-pickup-date").on("focus click",function(){$(this).datepicker("show");});
-                    $("#nbt-pickup-date").on("keydown",function(e){e.preventDefault();});
-                    $("#nbt-pickup-date").on("change",function(){
-                        var pickupdate=$(this).val();
-                        $.ajax({url:myAjax.ajaxurl,type:"post",data:{action:"update_pickup_date_session",pickupdate:pickupdate},success:function(){},error:function(e){console.log("error:",e);}});
-                    });
-                });
-                </script>
+					<script>
+					jQuery(function($){
+						function addWorkingDays(date, days) {
+							var count = 0;
+							var result = new Date(date);
+							while (count < days) {
+								result.setDate(result.getDate() + 1);
+								var day = result.getDay();
+								if (day !== 0) { count++; }
+							}
+							return result;
+						}
+						var today = new Date();
+						var minDate = addWorkingDays(today, 2);
+						$("#nbt-pickup-date").datepicker({
+							dateFormat: "dd-mm-yy",
+							minDate: minDate,
+							beforeShowDay: function(date){
+								var day = date.getDay();
+								return [day != 0, ""];
+							}
+						});
+						$("#nbt-pickup-date").on("focus click",function(){$(this).datepicker("show");});
+						$("#nbt-pickup-date").on("keydown",function(e){e.preventDefault();});
+						$("#nbt-pickup-date").on("change",function(){
+							var pickupdate=$(this).val();
+							$.ajax({url:myAjax.ajaxurl,type:"post",data:{action:"update_pickup_date_session",pickupdate:pickupdate},success:function(){},error:function(e){console.log("error:",e);}});
+						});
+					});
+					</script>
                 <?php
             }
         } else {
@@ -1039,7 +1020,6 @@ class nbtPublic{
     }
 
     public function show_pickup_details_checkout_alternative() {
-        echo '<script>console.log("[NBT] show_pickup_details_checkout_alternative called");</script>';
         $this->show_pickup_details_checkout();
     }
 
