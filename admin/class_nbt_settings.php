@@ -42,10 +42,9 @@ class NBT_Settings {
        
 
          $default_location = get_option('nbt_default_location', '');
-        if($default_location == ''){
+        if($default_location == '' && !empty($locations) && isset($locations[0]['location'])){
             update_option('nbt_default_location', $locations[0]['location']);
             $default_location = $locations[0]['location'];
-
         }
         // Render HTML
         ?>

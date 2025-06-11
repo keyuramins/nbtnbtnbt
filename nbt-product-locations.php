@@ -127,3 +127,24 @@ function remove_deactivation_link($actions) {
     return $actions;
 }
 add_action('admin_init', 'check_dependencies');
+
+// Register uninstall hook to clean up custom tables
+register_uninstall_hook(__FILE__, 'nbt_product_locations_uninstall');
+
+function nbt_product_locations_uninstall() {
+    global $wpdb;
+    // Delete plugin options
+    delete_option('nbt_locations');
+    delete_option('nbt_default_location');
+
+    // Remove all custom post meta for location-based prices from all products and variations
+    $locations = get_option('nbt_locations', []);
+    if (!empty($locations)) {
+        foreach ($locations as $location) {
+            if (!empty($location['location'])) {
+                $key = sanitize_title($location['location']);
+                $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s OR meta_key = %s", '_'.$key.'_price', '_'.$key.'_sale_price'));
+            }
+        }
+    }
+}
