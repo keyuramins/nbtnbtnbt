@@ -128,8 +128,18 @@ class nbtAdmin{
 	function save_variable_product_price_fields($variation_id, $i) {
 	    if(!empty($this->locations)){
 	    	$locations = $this->locations;
-	    	unset($locations[$this->default_locations]);  
-
+            // Save default location price as custom meta too
+            if (isset($this->default_locations) && $this->default_locations != '') {
+                $default_key = $this->default_locations;
+                $variation = wc_get_product($variation_id);
+                if ($variation) {
+                    $regular_price = $variation->get_regular_price();
+                    $sale_price = $variation->get_sale_price();
+                    update_post_meta($variation_id, '_' . $default_key . '_price', $regular_price);
+                    update_post_meta($variation_id, '_' . $default_key . '_sale_price', $sale_price);
+                }
+            }
+	    	unset($locations[$this->default_locations]);
 	    	foreach($locations as $key => $value){
 	    		if ($key != ''){
 				   $price = isset($_POST['_'.$key.'_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_price'][$variation_id]) : '';
@@ -139,7 +149,7 @@ class nbtAdmin{
 				    update_post_meta($variation_id, '_'.$key.'_sale_price', $sale_price);
 				}
 			}
-		}		
+	    }
 	}
 
 	//changes the backend product regular and sale price labels to the default location name
