@@ -128,7 +128,7 @@ class nbtAdmin{
 	function save_variable_product_price_fields($variation_id, $i) {
 	    if(!empty($this->locations)){
 	    	$locations = $this->locations;
-            // Save default location price as custom meta too
+            // Always update default location meta for every variation
             if (isset($this->default_locations) && $this->default_locations != '') {
                 $default_key = $this->default_locations;
                 $variation = wc_get_product($variation_id);
