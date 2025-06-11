@@ -77,6 +77,7 @@ class nbtAdmin{
 	    	$locations = $this->locations;
 	    	unset($locations[$this->default_locations]);
 	    	foreach($locations as $key => $value){
+	    		$key = strtolower($key);
 	    		if ($key != ''){
 				    woocommerce_wp_text_input(array(
 				        'id' => '_'.$key.'_price[' . $variation->ID . ']',
@@ -152,6 +153,7 @@ class nbtAdmin{
                     error_log("[NBT DEBUG] Saved variation default location meta for variation_id $variation_id: {$default_key}_price=$regular_price, {$default_key}_sale_price=$sale_price");
                 }
             }
+			unset($locations[$this->default_locations]);
             foreach($locations as $key => $value){
                 if ($key != ''){
                    $price = isset($_POST['_'.$key.'_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_price'][$variation_id]) : null;
@@ -166,7 +168,7 @@ class nbtAdmin{
                    }
                 }
             }
-            unset($locations[$this->default_locations]);
+            
 	    }
 	}
 
