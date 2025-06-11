@@ -106,8 +106,9 @@ class nbtPublic{
 	}
 
 	function custom_sale_price_display($price, $product) {
-
-	    $location_price = $this->current_locations;
+		$location_price = $this->current_locations;
+		$log = "<!-- [NBT LOG] custom_sale_price_display: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} -->\n";
+		echo $log;
 	
 	      	if($product && $product->is_type('simple')){   
 	    		echo ' ';
@@ -393,9 +394,11 @@ class nbtPublic{
 
 	
 	function yith_wapo_product_price($price, $product){
-		 $location_price = $this->current_locations;
-		 	    // Handle Sydney specific pricing.
-	    if ($this->current_locations != $this->default_location) {
+		$location_price = $this->current_locations;
+		$log = "<!-- [NBT LOG] yith_wapo_product_price: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} -->\n";
+		echo $log;
+		
+		 if ($this->current_locations != $this->default_location) {
 	    	if($product && $product->is_type('simple')){   
 				$regular_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
 		        $sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
@@ -480,10 +483,11 @@ class nbtPublic{
 	    return $price;
 	}
 	function yith_wapo_product_price_new($price, $product){
-		 $location_price = $this->current_locations;
-
-	    // Handle Sydney specific pricing.
-	 
+		$location_price = $this->current_locations;
+		$log = "<!-- [NBT LOG] yith_wapo_product_price_new: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} -->\n";
+		echo $log;
+		
+		 if ($this->current_locations != $this->default_location) {
 	    	if($product && $product->is_type('simple')){   
 
 				if($this->current_locations != $this->default_location){
