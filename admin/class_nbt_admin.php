@@ -108,6 +108,7 @@ class nbtAdmin{
                     $sale_price = $product->get_sale_price();
                     update_post_meta($post_id, '_' . $default_key . '_price', $regular_price);
                     update_post_meta($post_id, '_' . $default_key . '_sale_price', $sale_price);
+                    error_log("[NBT DEBUG] Saved simple product default location meta for post_id $post_id: {$default_key}_price=$regular_price, {$default_key}_sale_price=$sale_price");
                 }
             }
 	    	unset($locations[$this->default_locations]);
@@ -116,9 +117,13 @@ class nbtAdmin{
 			    $_price = $_POST['_'.$key.'_price'];
 			    if (!empty($_price)){
 			        update_post_meta($post_id, '_'.$key.'_price', esc_attr($_price));
+                    error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_price=$_price");
 			    }
 			    $_sale_price = $_POST['_'.$key.'_sale_price'];
-			    update_post_meta($post_id, '_'.$key.'_sale_price', $_POST['_'.$key.'_sale_price']);
+			    if (!empty($_sale_price)) {
+			        update_post_meta($post_id, '_'.$key.'_sale_price', $_sale_price);
+                    error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_sale_price=$_sale_price");
+                }
 			}
 		}
 	    }
@@ -137,6 +142,7 @@ class nbtAdmin{
                     $sale_price = $variation->get_sale_price();
                     update_post_meta($variation_id, '_' . $default_key . '_price', $regular_price);
                     update_post_meta($variation_id, '_' . $default_key . '_sale_price', $sale_price);
+                    error_log("[NBT DEBUG] Saved variation default location meta for variation_id $variation_id: {$default_key}_price=$regular_price, {$default_key}_sale_price=$sale_price");
                 }
             }
 	    	unset($locations[$this->default_locations]);
@@ -146,9 +152,11 @@ class nbtAdmin{
 				   $sale_price = isset($_POST['_'.$key.'_sale_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_sale_price'][$variation_id]) : null;
 				   if ($price !== null && $price !== '') {
 				       update_post_meta($variation_id, '_'.$key.'_price', $price);
+                       error_log("[NBT DEBUG] Saved variation meta for variation_id $variation_id: {$key}_price=$price");
 				   }
 				   if ($sale_price !== null && $sale_price !== '') {
 				       update_post_meta($variation_id, '_'.$key.'_sale_price', $sale_price);
+                       error_log("[NBT DEBUG] Saved variation meta for variation_id $variation_id: {$key}_sale_price=$sale_price");
 				   }
 				}
 			}
