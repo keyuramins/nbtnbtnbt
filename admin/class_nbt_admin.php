@@ -142,11 +142,14 @@ class nbtAdmin{
 	    	unset($locations[$this->default_locations]);
 	    	foreach($locations as $key => $value){
 	    		if ($key != ''){
-				   $price = isset($_POST['_'.$key.'_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_price'][$variation_id]) : '';
-				    $sale_price = isset($_POST['_'.$key.'_sale_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_sale_price'][$variation_id]) : '';
-				
-				    update_post_meta($variation_id, '_'.$key.'_price', $price);		  	
-				    update_post_meta($variation_id, '_'.$key.'_sale_price', $sale_price);
+				   $price = isset($_POST['_'.$key.'_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_price'][$variation_id]) : null;
+				   $sale_price = isset($_POST['_'.$key.'_sale_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_sale_price'][$variation_id]) : null;
+				   if ($price !== null && $price !== '') {
+				       update_post_meta($variation_id, '_'.$key.'_price', $price);
+				   }
+				   if ($sale_price !== null && $sale_price !== '') {
+				       update_post_meta($variation_id, '_'.$key.'_sale_price', $sale_price);
+				   }
 				}
 			}
 	    }
