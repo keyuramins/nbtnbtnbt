@@ -137,13 +137,28 @@ function nbt_product_locations_uninstall() {
     delete_option('nbt_locations');
     delete_option('nbt_default_location');
 
-    // Remove all custom post meta for location-based prices from all products and variations
+    // Remove all custom post meta for location-based prices from all products and variations (case-insensitive)
     $locations = get_option('nbt_locations', []);
     if (!empty($locations)) {
         foreach ($locations as $location) {
             if (!empty($location['location'])) {
-                $key = sanitize_title($location['location']);
-                $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s OR meta_key = %s", '_'.$key.'_price', '_'.$key.'_sale_price'));
+                $key = $location['location'];
+                // Delete all case variations (lowercase and original case)
+                $wpdb->query(
+                    $wpdb->prepare(
+                        "DELETE FROM {$wpdb->postmeta} WHERE LOWER(meta_key) = %s OR LOWER(meta_key) = %s",
+                        '_' . strtolower($key) . '_price',
+                        '_' . strtolower($key) . '_sale_price'
+                    )
+                );
+                // Also delete any meta keys that match the pattern, just in case
+                $wpdb->query(
+                    $wpdb->prepare(
+                        "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE %s OR meta_key LIKE %s",
+                        '_%' . $key . '_price',
+                        '_%' . $key . '_sale_price'
+                    )
+                );
             }
         }
     }
