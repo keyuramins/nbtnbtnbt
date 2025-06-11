@@ -152,21 +152,21 @@ class nbtAdmin{
                     error_log("[NBT DEBUG] Saved variation default location meta for variation_id $variation_id: {$default_key}_price=$regular_price, {$default_key}_sale_price=$sale_price");
                 }
             }
-	    	unset($locations[$this->default_locations]);
-	    	foreach($locations as $key => $value){
-	    		if ($key != ''){
-				   $price = isset($_POST['_'.$key.'_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_price'][$variation_id]) : null;
-				   $sale_price = isset($_POST['_'.$key.'_sale_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_sale_price'][$variation_id]) : null;
-				   if ($price !== null && $price !== '') {
-				       update_post_meta($variation_id, '_'.$key.'_price', $price);
+            foreach($locations as $key => $value){
+                if ($key != ''){
+                   $price = isset($_POST['_'.$key.'_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_price'][$variation_id]) : null;
+                   $sale_price = isset($_POST['_'.$key.'_sale_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_sale_price'][$variation_id]) : null;
+                   if ($price !== null && $price !== '') {
+                       update_post_meta($variation_id, '_'.$key.'_price', $price);
                        error_log("[NBT DEBUG] Saved variation meta for variation_id $variation_id: {$key}_price=$price");
-				   }
-				   if ($sale_price !== null && $sale_price !== '') {
-				       update_post_meta($variation_id, '_'.$key.'_sale_price', $sale_price);
+                   }
+                   if ($sale_price !== null && $sale_price !== '') {
+                       update_post_meta($variation_id, '_'.$key.'_sale_price', $sale_price);
                        error_log("[NBT DEBUG] Saved variation meta for variation_id $variation_id: {$key}_sale_price=$sale_price");
-				   }
-				}
-			}
+                   }
+                }
+            }
+            unset($locations[$this->default_locations]);
 	    }
 	}
 
