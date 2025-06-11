@@ -99,18 +99,29 @@ class nbtAdmin{
 	function woocommerce_product_custom_fields_save($post_id){
     	if(!empty($this->locations)){
 	    	$locations = $this->locations;
+            // Save default location price as custom meta too
+            if (isset($this->default_locations) && $this->default_locations != '') {
+                $default_key = $this->default_locations;
+                $product = wc_get_product($post_id);
+                if ($product && $product->is_type('simple')) {
+                    $regular_price = $product->get_regular_price();
+                    $sale_price = $product->get_sale_price();
+                    update_post_meta($post_id, '_' . $default_key . '_price', $regular_price);
+                    update_post_meta($post_id, '_' . $default_key . '_sale_price', $sale_price);
+                }
+            }
 	    	unset($locations[$this->default_locations]);
 	    	foreach($locations as $key => $value){
 	    		if ($key != ''){
-				    $_price = $_POST['_'.$key.'_price'];
-				    if (!empty($_price)){
-				        update_post_meta($post_id, '_'.$key.'_price', esc_attr($_price));
-				    }
-				    $_sale_price = $_POST['_'.$key.'_sale_price'];
-				   	update_post_meta($post_id, '_'.$key.'_sale_price', $_POST['_'.$key.'_sale_price']);
-				}
-			}    
-	   	}
+			    $_price = $_POST['_'.$key.'_price'];
+			    if (!empty($_price)){
+			        update_post_meta($post_id, '_'.$key.'_price', esc_attr($_price));
+			    }
+			    $_sale_price = $_POST['_'.$key.'_sale_price'];
+			    update_post_meta($post_id, '_'.$key.'_sale_price', $_POST['_'.$key.'_sale_price']);
+			}
+		}
+	    }
 	}
 
 	//saves the custom price and sale price for each location in variations panel
