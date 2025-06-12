@@ -54,5 +54,36 @@ do_action( 'yith_wapo_before_main_container' );
     ?>
 </div>
 
+<?php // Debug: Log the gold price block at different times ?>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var priceBlock = document.querySelector('.yith-wapo-product-price, .single_variation_wrap .price, .price');
+    if (priceBlock) {
+      console.log('[NBT DEBUG] Price block on DOMContentLoaded:', priceBlock.innerHTML);
+    } else {
+      console.log('[NBT DEBUG] Price block not found on DOMContentLoaded');
+    }
+    setTimeout(function() {
+      var priceBlock2 = document.querySelector('.yith-wapo-product-price, .single_variation_wrap .price, .price');
+      if (priceBlock2) {
+        console.log('[NBT DEBUG] Price block after 1s:', priceBlock2.innerHTML);
+      } else {
+        console.log('[NBT DEBUG] Price block not found after 1s');
+      }
+    }, 1000);
+  });
+  // Log after any AJAX completes (jQuery required)
+  if (window.jQuery) {
+    jQuery(document).ajaxComplete(function() {
+      var priceBlock3 = document.querySelector('.yith-wapo-product-price, .single_variation_wrap .price, .price');
+      if (priceBlock3) {
+        console.log('[NBT DEBUG] Price block after AJAX:', priceBlock3.innerHTML);
+      } else {
+        console.log('[NBT DEBUG] Price block not found after AJAX');
+      }
+    });
+  }
+</script>
+
 <?php
 do_action( 'yith_wapo_after_main_container' );
