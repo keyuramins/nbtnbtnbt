@@ -1,11 +1,9 @@
 <?php 
 /**
  * Plugin Name: NBT Products Locations
- * Plugin URI:  
- * Description: 
- * Version: 1.0.2
- * Author: Dhara Talaviya
- * Author URI: 
+ * Version: 1.0.0
+ * Author: Akvitek
+ * Author URI: https://www.akvitek.com.au/
  * Text Domain: nbt-products-locations
  * Domain Path: languages
  *
