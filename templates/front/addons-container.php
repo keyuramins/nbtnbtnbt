@@ -63,69 +63,6 @@ if ($product->is_type('simple')) {
     echo "<script>window.NBT_SIMPLE_PRODUCT_PRICES = {regular: $regular_price, sale: $sale_price};</script>";
 }
 ?>
-<script>
-(function() {
-  // Only run for simple products
-  if (!window.NBT_SIMPLE_PRODUCT_PRICES) return;
-  var reg = window.NBT_SIMPLE_PRODUCT_PRICES.regular;
-  var sale = window.NBT_SIMPLE_PRODUCT_PRICES.sale;
-
-  function formatPrice(amount) {
-    return '$' + amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-  }
-
-  function updatePriceBlock() {
-    if (!sale || sale >= reg) return;
-    var priceBlock = document.querySelector('.yith-wapo-product-price, .single_variation_wrap .price, .price');
-    if (priceBlock) {
-      var html = '<del>' + formatPrice(reg) + '</del> <ins>' + formatPrice(sale) + '</ins> <small class="woocommerce-price-suffix">incl GST</small>';
-      priceBlock.innerHTML = html;
-      console.log('[NBT TEST] Overriding price block with strikethrough HTML:', html);
-    }
-  }
-
-  // Run after DOM ready and after AJAX completes
-  document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(updatePriceBlock, 200); // Let YITH run first
-  });
-  if (window.jQuery) {
-    jQuery(document).ajaxComplete(function() {
-      setTimeout(updatePriceBlock, 100); // Let YITH run first
-    });
-  }
-})();
-</script>
-
-<?php // Debug: Log the gold price block at different times ?>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var priceBlock = document.querySelector('.yith-wapo-product-price, .single_variation_wrap .price, .price');
-    if (priceBlock) {
-      console.log('[NBT DEBUG] Price block on DOMContentLoaded:', priceBlock.innerHTML);
-    } else {
-      console.log('[NBT DEBUG] Price block not found on DOMContentLoaded');
-    }
-    setTimeout(function() {
-      var priceBlock2 = document.querySelector('.yith-wapo-product-price, .single_variation_wrap .price, .price');
-      if (priceBlock2) {
-        console.log('[NBT DEBUG] Price block after 1s:', priceBlock2.innerHTML);
-      } else {
-        console.log('[NBT DEBUG] Price block not found after 1s');
-      }
-    }, 1000);
-  });
-  // Log after any AJAX completes (jQuery required)
-  if (window.jQuery) {
-    jQuery(document).ajaxComplete(function() {
-      var priceBlock3 = document.querySelector('.yith-wapo-product-price, .single_variation_wrap .price, .price');
-      if (priceBlock3) {
-        console.log('[NBT DEBUG] Price block after AJAX:', priceBlock3.innerHTML);
-      } else {
-        console.log('[NBT DEBUG] Price block not found after AJAX');
-      }
-    });
-  }
-</script>
 
 <?php
 do_action( 'yith_wapo_after_main_container' );
