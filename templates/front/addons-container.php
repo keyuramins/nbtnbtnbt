@@ -65,17 +65,18 @@ if ($product->is_type('simple')) {
 ?>
 <script>
 (function() {
-  // Only run for simple products with a sale price
+  // Only run for simple products
   if (!window.NBT_SIMPLE_PRODUCT_PRICES) return;
   var reg = window.NBT_SIMPLE_PRODUCT_PRICES.regular;
   var sale = window.NBT_SIMPLE_PRODUCT_PRICES.sale;
-  if (!sale || sale >= reg) return;
+  var productId = <?php echo intval($product->get_id()); ?>;
 
   function formatPrice(amount) {
     return '$' + amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
   }
 
   function updatePriceBlock() {
+    if (!sale || sale >= reg) return;
     var priceBlock = document.querySelector('.yith-wapo-product-price, .single_variation_wrap .price, .price');
     if (priceBlock) {
       var html = '<del>' + formatPrice(reg) + '</del> <ins>' + formatPrice(sale) + '</ins> <small class="woocommerce-price-suffix">incl GST</small>';
@@ -83,6 +84,29 @@ if ($product->is_type('simple')) {
       console.log('[NBT TEST] Overriding price block with strikethrough HTML:', html);
     }
   }
+
+  // Listen for location selector changes
+  document.addEventListener('change', function(e) {
+    var target = e.target;
+    if (target.classList.contains('location_price') || target.classList.contains('nbt-location-selector')) {
+      var location = target.value;
+      // AJAX to get new prices
+      jQuery.post(myAjax.ajaxurl, {
+        action: 'nbt_get_location_prices',
+        product_id: productId,
+        location: location
+      }, function(response) {
+        if (response.success) {
+          reg = response.data.regular;
+          sale = response.data.sale;
+          window.NBT_SIMPLE_PRODUCT_PRICES.regular = reg;
+          window.NBT_SIMPLE_PRODUCT_PRICES.sale = sale;
+          setTimeout(updatePriceBlock, 150); // Let YITH update first
+          console.log('[NBT TEST] Updated prices for location', location, reg, sale);
+        }
+      });
+    }
+  });
 
   // Run after DOM ready and after AJAX completes
   document.addEventListener('DOMContentLoaded', function() {

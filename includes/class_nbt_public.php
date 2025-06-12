@@ -837,6 +837,8 @@ class nbtPublic{
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
 		add_action('woocommerce_email', [$this, 'remove_email_addresses'], 10, 1);
 		#remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_customer_details', 10 );
+		add_action('wp_ajax_nbt_get_location_prices', array($this, 'nbt_get_location_prices_ajax'));
+		add_action('wp_ajax_nopriv_nbt_get_location_prices', array($this, 'nbt_get_location_prices_ajax'));
 	}	
 
 	// Remove entire addresses section from order table
@@ -1286,5 +1288,33 @@ class nbtPublic{
         </form>
         <?php
         return ob_get_clean();
+    }
+
+    // AJAX handler to get location-specific prices for a product
+    public function nbt_get_location_prices_ajax() {
+        $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+        $location = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
+        $regular = '';
+        $sale = '';
+        if ($product_id && $location) {
+            $regular = get_post_meta($product_id, '_' . $location . '_price', true);
+            $sale = get_post_meta($product_id, '_' . $location . '_sale_price', true);
+            if ($regular === '') {
+                $product = wc_get_product($product_id);
+                if ($product) {
+                    $regular = $product->get_regular_price();
+                }
+            }
+            if ($sale === '') {
+                $product = isset($product) ? $product : wc_get_product($product_id);
+                if ($product) {
+                    $sale = $product->get_sale_price();
+                }
+            }
+        }
+        wp_send_json_success([
+            'regular' => floatval($regular),
+            'sale' => floatval($sale)
+        ]);
     }
 }
