@@ -39,7 +39,7 @@ do_action( 'yith_wapo_before_main_container' );
 		if(function_exists('get_price_html_display')) {
 			echo '<div class="nbt_display_price">';
 			echo get_price_html_display($product_price, $product);
-			echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+			//echo '<small class="woocommerce-price-suffix"> incl GST </small>';
 			echo '</div>';
 		} else {
 			echo '<div class="nbt_display_price">';
