@@ -383,3 +383,19 @@ global $product;
 	<?php endforeach; ?>
 
 </div>
+
+<style>
+#wapo-total-price-table {
+  display: none;
+}
+</style>
+<script>
+jQuery(document).ready(function($) {
+  $('.variations_form').on('show_variation', function() {
+    $('#wapo-total-price-table').show();
+  });
+  $('.variations_form').on('reset_data', function() {
+    $('#wapo-total-price-table').hide();
+  });
+});
+</script>
