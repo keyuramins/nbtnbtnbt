@@ -101,8 +101,6 @@ class nbtPublic{
 
 	function custom_sale_price_display($price, $product) {
 		$location_price = $this->current_locations;
-		$log = "[NBT LOG] custom_sale_price_display: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} \n";
-		echo $log;
 	
 	      	if($product && $product->is_type('simple')){   
 	    		echo ' ';
@@ -389,9 +387,6 @@ class nbtPublic{
 	
 	function yith_wapo_product_price($price, $product){
 		$location_price = $this->current_locations;
-		$log = "[NBT LOG] yith_wapo_product_price: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price}\n";
-		echo $log;
-		
 		 if ($this->current_locations != $this->default_location) {
 	    	if($product && $product->is_type('simple')){   
 				$regular_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
@@ -478,9 +473,6 @@ class nbtPublic{
 	}
 	function yith_wapo_product_price_new($price, $product) {
 		$location_price = $this->current_locations;
-		$log = "[NBT LOG] yith_wapo_product_price_new: product_id={$product->get_id()}, type=" . $product->get_type() . ", location={$this->current_locations}, regular_price=" . $product->get_regular_price() . ", sale_price=" . $product->get_sale_price() . ", returned_price={$price} \n";
-		echo $log;
-		
 		if ($this->current_locations != $this->default_location) {
 			if ($product && $product->is_type('simple')) {
 				if ($this->current_locations != $this->default_location) {
@@ -899,21 +891,16 @@ class nbtPublic{
         if ((function_exists('is_checkout') && is_checkout()) || (function_exists('is_cart') && is_cart())) {
             echo '<style>.variation-Depositamount, .variation-Futurepayments { display: none !important; } </style>';
         }
-        echo '<script>console.log("[NBT] show_pickup_details_checkout: function called");</script>';
         // Get current location with better fallback handling
         $current_location = '';
         if (isset($_POST['location_price']) && !empty($_POST['location_price'])) {
             $current_location = sanitize_text_field($_POST['location_price']);
-            echo '<script>console.log("[NBT] POST location_price found: ' . esc_js($current_location) . '");</script>';
         } elseif (isset($_COOKIE['location_price']) && !empty($_COOKIE['location_price'])) {
             $current_location = sanitize_text_field($_COOKIE['location_price']);
-            echo '<script>console.log("[NBT] COOKIE location_price found: ' . esc_js($current_location) . '");</script>';
         } else {
             $current_location = $this->default_location; // Use default if nothing is set
-            echo '<script>console.log("[NBT] Using default_location: ' . esc_js($current_location) . '");</script>';
         }
         $nbt_locations = get_option('nbt_locations', []);
-        echo '<script>console.log("[NBT] nbt_locations loaded", ' . json_encode($nbt_locations) . ');</script>';
         $pickup_name = '';
         $pickup_address = '';
         if (!empty($current_location) && is_array($nbt_locations)) {
@@ -925,7 +912,6 @@ class nbtPublic{
                 if ($loc_key === $current_key) {
                     $pickup_name = isset($loc['location']) ? $loc['location'] : '';
                     $pickup_address = isset($loc['address']) ? $loc['address'] : '';
-                    echo '<script>console.log("[NBT] Found pickup_name: ' . esc_js($pickup_name) . ' and pickup_address: ' . esc_js($pickup_address) . '");</script>';
                     break;
                 }
             }
@@ -938,7 +924,6 @@ class nbtPublic{
                         foreach ($nbt_locations as $loc) {
                             if (isset($loc['location']) && trim(strtolower($loc['location'])) === trim(strtolower($key))) {
                                 $pickup_address = isset($loc['address']) ? $loc['address'] : '';
-                                echo '<script>console.log("[NBT] Found pickup_name from locations array: ' . esc_js($pickup_name) . ' and pickup_address: ' . esc_js($pickup_address) . '");</script>';
                                 break;
                             }
                         }
@@ -949,13 +934,6 @@ class nbtPublic{
         }
         // Always output the box, even if no details found
         echo '<div class="nbt-pickup-details-checkout" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 4px;">';
-        echo '<!-- DEBUG: show_pickup_details_checkout called. -->';
-        // Add console logging for debugging
-        echo '<script>console.log("[NBT] Final output", {
-            current_location: "' . esc_js($current_location) . '",
-            pickup_name: "' . esc_js($pickup_name) . '",
-            pickup_address: "' . esc_js($pickup_address) . '"
-        });</script>';
         if (!empty($pickup_name)) {
             echo '<h3 style="margin-top: 0; color: #333;">Pickup Details</h3>';
             echo '<p style="margin: 5px 0;"><strong>Location:</strong> ' . esc_html($pickup_name) . '</p>';
