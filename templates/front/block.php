@@ -391,11 +391,26 @@ global $product;
 </style>
 <script>
 jQuery(document).ready(function($) {
-  $('.variations_form').on('show_variation', function() {
-    $('#wapo-total-price-table').show();
-  });
+  function showWapoTableIfVariation() {
+    // Only show if a variation is selected
+    if ($('.variations_form .variation_id').val()) {
+      $('#wapo-total-price-table').show();
+    }
+  }
+
+  // Listen for variation selection/reset
+  $('.variations_form').on('show_variation', showWapoTableIfVariation);
   $('.variations_form').on('reset_data', function() {
     $('#wapo-total-price-table').hide();
   });
+
+  // MutationObserver to catch DOM changes
+  var target = document.getElementById('wapo-total-price-table');
+  if (target) {
+    var observer = new MutationObserver(function() {
+      showWapoTableIfVariation();
+    });
+    observer.observe(target, { attributes: true, childList: true, subtree: true });
+  }
 });
 </script>
