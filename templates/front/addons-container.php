@@ -54,6 +54,48 @@ do_action( 'yith_wapo_before_main_container' );
     ?>
 </div>
 
+<?php 
+// Output regular and sale price as JS variables for simple products
+global $product;
+if ($product->is_type('simple')) {
+    $regular_price = floatval($product->get_regular_price());
+    $sale_price = floatval($product->get_sale_price());
+    echo "<script>window.NBT_SIMPLE_PRODUCT_PRICES = {regular: $regular_price, sale: $sale_price};</script>";
+}
+?>
+<script>
+(function() {
+  // Only run for simple products with a sale price
+  if (!window.NBT_SIMPLE_PRODUCT_PRICES) return;
+  var reg = window.NBT_SIMPLE_PRODUCT_PRICES.regular;
+  var sale = window.NBT_SIMPLE_PRODUCT_PRICES.sale;
+  if (!sale || sale >= reg) return;
+
+  function formatPrice(amount) {
+    return '$' + amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  }
+
+  function updatePriceBlock() {
+    var priceBlock = document.querySelector('.yith-wapo-product-price, .single_variation_wrap .price, .price');
+    if (priceBlock) {
+      var html = '<del>' + formatPrice(reg) + '</del> <ins>' + formatPrice(sale) + '</ins> <small class="woocommerce-price-suffix">incl GST</small>';
+      priceBlock.innerHTML = html;
+      console.log('[NBT TEST] Overriding price block with strikethrough HTML:', html);
+    }
+  }
+
+  // Run after DOM ready and after AJAX completes
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(updatePriceBlock, 200); // Let YITH run first
+  });
+  if (window.jQuery) {
+    jQuery(document).ajaxComplete(function() {
+      setTimeout(updatePriceBlock, 100); // Let YITH run first
+    });
+  }
+})();
+</script>
+
 <?php // Debug: Log the gold price block at different times ?>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
