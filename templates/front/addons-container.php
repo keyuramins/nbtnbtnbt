@@ -68,7 +68,7 @@ if ($product->is_type('variable')) {
     global $wpdb;
     $product_id = $product->get_id();
     // Adjust the table name if your DB prefix is not 'wp_'
-    $table = $wpdb->prefix . 'yith_wapo_blocks_products';
+    $table = $wpdb->prefix . 'yith_wapo_blocks';
     $block_ids = $wpdb->get_col(
         $wpdb->prepare(
             "SELECT block_id FROM $table WHERE product_id = %d",
