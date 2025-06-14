@@ -36,19 +36,19 @@ do_action( 'yith_wapo_before_main_container' );
 
 	<?php 
 	//Hide our custom price block for simple products
-	// if($product->is_type('simple')){
-	// 	if(function_exists('get_price_html_display')) {
-	// 		echo '<div class="nbt_display_price">';
-	// 		echo get_price_html_display($product_price, $product);
-	// 		echo '<small class="woocommerce-price-suffix"> incl GST </small>';
-	// 		echo '</div>';
-	// 	} else {
-	// 		echo '<div class="nbt_display_price">';
-	// 		echo wc_price($product_price);
-	// 		echo '<small class="woocommerce-price-suffix"> incl GST </small>';
-	// 		echo '</div>';
-	// 	}
-	// }
+	if($product->is_type('simple')){
+		if(function_exists('get_price_html_display')) {
+			echo '<div class="nbt_display_price">';
+			echo get_price_html_display($product_price, $product);
+			echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+			echo '</div>';
+		} else {
+			echo '<div class="nbt_display_price">';
+			echo wc_price($product_price);
+			echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+			echo '</div>';
+		}
+	}
   	?>
 	<?php $instance->print_blocks();
     ?>
@@ -61,42 +61,6 @@ if ($product->is_type('simple')) {
     $regular_price = floatval($product->get_regular_price());
     $sale_price = floatval($product->get_sale_price());
     echo "<script>window.NBT_SIMPLE_PRODUCT_PRICES = {regular: $regular_price, sale: $sale_price};</script>";
-}
-
-// Check if the current product is a variable product
-if ($product->is_type('variable')) {
-    // Hide price initially, show only after variation is selected
-    echo '<div class="nbt_display_price" id="nbt-variable-price-display" style="display:none; font-weight:bold; color:#0E70B9;"></div>';
-    ?>
-    <script>
-    jQuery(document).ready(function($) {
-        var productId = <?php echo json_encode($product->get_id()); ?>;
-        $(document).on('change', '.variations_form select', function() {
-            var $form = $(this).closest('.variations_form');
-            var variationId = $form.find('input[name=variation_id]').val();
-            if (variationId && variationId !== '0') {
-                $.ajax({
-                    url: <?php echo json_encode(admin_url('admin-ajax.php')); ?>,
-                    type: 'POST',
-                    data: {
-                        action: 'nbt_get_variation_price',
-                        variation_id: variationId,
-                        product_id: productId
-                    },
-                    success: function(response) {
-                        if (response && response.success && response.data && response.data.price_html) {
-                            $('#nbt-variable-price-display').html(response.data.price_html).css({'display':'block','font-weight':'bold','color':'#0E70B9'});
-                        }
-                    }
-                });
-            } else {
-                // Hide price if no variation selected
-                $('#nbt-variable-price-display').hide();
-            }
-        });
-    });
-    </script>
-    <?php
 }
 ?>
 
