@@ -178,57 +178,73 @@ class nbtPublic{
 	    return $price;
 	}
 	
-	function nbt_get_price( $price, $product, $variation ) {
-		$variation = new WC_Product_Variation( $variation );
-		
-		
-		
-	    if ( $this->current_locations != $this->default_location) {
-		    	if($product->is_type('simple')){
-		    			$product_id = $product->get_id();
-			    		$pprice = get_post_meta($product_id, '_'.$this->current_locations.'_price', true);
-			        	$sale_price = (get_post_meta($product_id, '_'.$this->current_locations.'_sale_price', true) != '') ? get_post_meta($product_id, '_'.$this->current_locations.'_sale_price', true) : '';
-			    	if($sale_price != ''){
-			    		return  $sale_price ;
-			    	}elseif($pprice != '' && $pprice > 0){
-			    		return $pprice;
-			    	}
-		       
-	    	}else if($product->is_type('variable') && $variation->get_id() > 0){
-	    		$pprice = ( trim(get_post_meta($variation->get_id(), '_'.$this->current_locations.'_price', true) != '' )) ? get_post_meta($variation->get_id(), '_'.$this->current_locations.'_price', true) : '';
-		       
-		        $sale_price = (get_post_meta($variation->get_id(), '_'.$this->current_locations.'_sale_price', true) != '') ? get_post_meta($variation->get_id(), '_'.$this->current_locations.'_sale_price', true) : '';
-		        if($sale_price != ''){
-		    		return  $sale_price ;
-		    	}
-		    	else if($pprice != '' ){
-		    		return $pprice;
-		    	}
-		    	
-	    	}
-	    	else if($product->is_type('variable')){
-	    			
-	    		$variations = $product->get_children();
-                $reg_prices = array();
-                $sale_prices = array();
+    // Get the correct price for a product or variation based on the current location
+    function nbt_get_price( $price, $product, $variation ) {
+        // Ensure $variation is a valid WC_Product_Variation object
+        $variation = new WC_Product_Variation( $variation );
+
+        // Check if the current location is NOT the default location
+        if ( $this->current_locations != $this->default_location) {
+            // If the product is a simple product
+            if($product->is_type('simple')){
+                // Get the product ID
+                $product_id = $product->get_id();
+                // Get the location-specific regular price from post meta
+                $pprice = get_post_meta($product_id, '_'.$this->current_locations.'_price', true);
+                // Get the location-specific sale price from post meta
+                $sale_price = (get_post_meta($product_id, '_'.$this->current_locations.'_sale_price', true) != '') ? get_post_meta($product_id, '_'.$this->current_locations.'_sale_price', true) : '';
+                // If a sale price exists, return it
+                if($sale_price != ''){
+                    return  $sale_price ;
+                // Otherwise, if a regular price exists and is greater than 0, return it
+                }elseif($pprice != '' && $pprice > 0){
+                    return $pprice;
+                }
+            // If the product is a variable product and a specific variation is selected
+            }else if($product->is_type('variable') && $variation->get_id() > 0){
+                // Get the location-specific regular price for the variation
+                $pprice = ( trim(get_post_meta($variation->get_id(), '_'.$this->current_locations.'_price', true) != '' )) ? get_post_meta($variation->get_id(), '_'.$this->current_locations.'_price', true) : '';
+                // Get the location-specific sale price for the variation
+                $sale_price = (get_post_meta($variation->get_id(), '_'.$this->current_locations.'_sale_price', true) != '') ? get_post_meta($variation->get_id(), '_'.$this->current_locations.'_sale_price', true) : '';
+                // If a sale price exists, return it
+                if($sale_price != ''){
+                    return  $sale_price ;
+                // Otherwise, if a regular price exists, return it
+                } else if($pprice != '' ){
+                    return $pprice;
+                }
+            // If the product is a variable product but no specific variation is selected
+            }else if($product->is_type('variable')){
+                // Get all child variations of the variable product
+                $variations = $product->get_children();
+                $reg_prices = array(); // Array to store regular prices
+                $sale_prices = array(); // Array to store sale prices
+                // Loop through each variation
                 foreach ($variations as $value) {
-	                $single_variation=new WC_Product_Variation($value);
-	              	$price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
-		        	$sale_price = (get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) != '') ? get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) : '';
-		        	array_push($reg_prices, $price);
-	                array_push($sale_prices, $sale_price);
-	            }
-	           
-	            if(!empty($sale_price) && min($sale_prices) > 0){
-	            	return min($sale_prices);
-	            }else{
-	            	return min($reg_prices);
-	            }      
-	    	}
-	    }
-	   
-	    return $price ;
-	}
+                    // Create a WC_Product_Variation object for each variation
+                    $single_variation=new WC_Product_Variation($value);
+                    // Get the location-specific regular price for the variation
+                    $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
+                    // Get the location-specific sale price for the variation
+                    $sale_price = (get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) != '') ? get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) : '';
+                    // Add the regular price to the array
+                    array_push($reg_prices, $price);
+                    // Add the sale price to the array
+                    array_push($sale_prices, $sale_price);
+                }
+                // If there is at least one sale price and the minimum sale price is greater than 0, return the minimum sale price
+                if(!empty($sale_price) && min($sale_prices) > 0){
+                    return min($sale_prices);
+                // Otherwise, return the minimum regular price
+                }else{
+                    return min($reg_prices);
+                }      
+            }
+        }
+        // If the current location is the default, or no location-specific price is found, return the original price
+        return $price ;
+    }
+
 	function nbt_override_wc_template($template, $template_name, $template_path) {
 		global $woocommerce; 
 		
@@ -245,24 +261,7 @@ class nbtPublic{
 	    // Return the original template if the custom one doesn't exist
 	    return $template;
 	}
-	function nbt_product_variation_get_regular_price( $price, $product ) {
-	    // Delete product cached price  (if needed)
-	    wc_delete_product_transients($product->get_id());
-	      
 
-	    // Handle Sydney specific pricing.
-	    if ( $this->current_locations != $this->default_location) {
-
-	        // Get the custom prices for Sydney
-	       $sydney_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
-	     	if ($sydney_price != '' && $sydney_price > 0) {
-	            // Use the regular price for Sydney
-	           $price = $sydney_price;
-	        }
-	    }
-	   
-	    return $price;
-	}
 	// Variations (of a variable product)
 	function nbt_product_variation_get_price( $price, $product ) {
 		
@@ -306,10 +305,8 @@ class nbtPublic{
 		        $sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
 	    			
 		        if (isset($sale_price) && $sale_price > 0) {
-		            // Sydney specific sale price format.
 		            return $sale_price;
 		        } else if(isset($regular_price) && $regular_price > 0 ){
-		            // Sydney specific regular price format.
 		            return $regular_price;
 		        }
 		  	 
@@ -325,10 +322,8 @@ class nbtPublic{
 					$sale_price = $product->get_sale_price();
 	            }
 	             if (!empty($sale_price)) {
-	                // Sydney specific sale price format.
 	                return $sale_price;
 	            } elseif(!empty($sale_price)) {
-	                // Sydney specific regular price format.
 	                return $regular_price;
 	            }else{
 	                return $price;
@@ -397,10 +392,8 @@ class nbtPublic{
 				}
 
 				if (isset($sale_price) && $sale_price > 0) {
-					// Sydney specific sale price format.
 					return sprintf('<del>%s</del> &nbsp;<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price), wc_price($sale_price));
 				} else if ($regular_price > 0) {
-					// Sydney specific regular price format.
 					return sprintf('<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price));
 				}
 			} elseif ($product && $product->is_type('variation')) {
@@ -412,10 +405,8 @@ class nbtPublic{
 					$sale_price = $product->get_sale_price();
 				}
 				if (!empty($sale_price)) {
-					// Sydney specific sale price format.
 					return $sale_price;
 				} elseif (!empty($sale_price)) {
-					// Sydney specific regular price format.
 					return $regular_price;
 				} else {
 					return $price;
