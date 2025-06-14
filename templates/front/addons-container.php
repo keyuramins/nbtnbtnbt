@@ -67,10 +67,8 @@ if ($product->is_type('simple')) {
 if ($product->is_type('variable')) {
     global $wpdb;
     $product_id = (string) $product->get_id(); // YITH stores as string
-
     $table = $wpdb->prefix . 'yith_wapo_blocks';
     $blocks = $wpdb->get_results("SELECT settings FROM $table");
-
     $has_addons = false;
     foreach ($blocks as $block) {
         $settings = maybe_unserialize($block->settings);
@@ -83,9 +81,8 @@ if ($product->is_type('variable')) {
             break;
         }
     }
-
+    // Only show price if NO add-ons, or if a variation is selected (handled by JS)
     if (!$has_addons) {
-        // No YITH add-ons: show the price
         if (function_exists('get_price_html_display')) {
             echo '<div class="nbt_display_price">';
             echo get_price_html_display($product_price, $product);
@@ -97,8 +94,27 @@ if ($product->is_type('variable')) {
             echo '<small class="woocommerce-price-suffix"> incl GST </small>';
             echo '</div>';
         }
+    } else {
+        // Add a placeholder for JS to update price when a variation is selected
+        echo '<div id="nbt-variation-price-placeholder" style="display:none;"></div>';
+        ?>
+        <script>
+        jQuery(document).ready(function($) {
+            var $form = $('.variations_form');
+            $form.on('show_variation', function(event, variation) {
+                // Show the price for the selected variation
+                var priceHtml = variation.price_html;
+                if (priceHtml) {
+                    $('#nbt-variation-price-placeholder').html(priceHtml + '<small class="woocommerce-price-suffix"> incl GST </small>').show();
+                }
+            });
+            $form.on('hide_variation', function() {
+                $('#nbt-variation-price-placeholder').hide().html('');
+            });
+        });
+        </script>
+        <?php
     }
-    // If $has_addons is true, do NOT show the price (handled by YITH blocks)
 }
 ?>
 
