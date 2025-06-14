@@ -71,7 +71,7 @@ if ($product->is_type('variable')) {
     } else {
         echo wc_price($product_price); // Fallback to WooCommerce default
     }
-    echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+    //echo '<small class="woocommerce-price-suffix"> incl GST </small>';
     echo '</div>';
     ?>
     <script>
