@@ -68,19 +68,19 @@ if ($product->is_type('variable')) {
     $has_addons = false;
     $blocks = get_post_meta($product->get_id(), '_yith_wapo_blocks', true);
     if (!empty($blocks)) {
-        $has_addons = false;
+        $has_addons = true;
     }
     // If no add-ons, display the price
-    if ($has_addons) {
+    if (!$has_addons) {
         if (function_exists('get_price_html_display')) {
             echo '<div class="nbt_display_price">';
             echo get_price_html_display($product_price, $product);
-            echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+            echo '<small class="woocommerce-price-suffix"> has addons </small>';
             echo '</div>';
         } else {
             echo '<div class="nbt_display_price">';
             echo wc_price($product_price);
-            echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+            echo '<small class="woocommerce-price-suffix"> no addons </small>';
             echo '</div>';
         }
     }
