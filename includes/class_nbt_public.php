@@ -206,29 +206,25 @@ class nbtPublic{
 		    	}
 		    	
 	    	}
-	    	// else if($product->is_type('variable')){
+	    	else if($product->is_type('variable')){
 	    			
-	    	// 	$variations = $product->get_children();
-            //     $reg_prices = array();
-            //     $sale_prices = array();
-            //     foreach ($variations as $value) {
-	        //         $single_variation=new WC_Product_Variation($value);
-	        //       	$price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
-		    //     	$sale_price = (get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) != '') ? get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) : '';
-		    //     	array_push($reg_prices, $price);
-	        //         array_push($sale_prices, $sale_price);
-	        //     }
+	    		$variations = $product->get_children();
+                $reg_prices = array();
+                $sale_prices = array();
+                foreach ($variations as $value) {
+	                $single_variation=new WC_Product_Variation($value);
+	              	$price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
+		        	$sale_price = (get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) != '') ? get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) : '';
+		        	array_push($reg_prices, $price);
+	                array_push($sale_prices, $sale_price);
+	            }
 	           
-	        //     if(!empty($sale_price) && min($sale_prices) > 0){
-	        //     	return min($sale_prices);
-	        //     }else{
-	        //     	return min($reg_prices);
-	        //     }      
-	    	// }
-
-	        //  if (isset($_POST['location_price']) && $_POST['location_price'] == 'sydney') {
-		    //         setcookie('location_price', $_POST['location_price'], time() + 864000, "/"); //3 days cookie
-		    //     }
+	            if(!empty($sale_price) && min($sale_prices) > 0){
+	            	return min($sale_prices);
+	            }else{
+	            	return min($reg_prices);
+	            }      
+	    	}
 	    }
 	   
 	    return $price ;
@@ -705,10 +701,7 @@ class nbtPublic{
 	    return $cart_item['data']->get_name();
 	}
 
-	
-
-	function init(){  
-		 
+	function init(){
 		add_action('wp_footer', [$this, 'btlocation_footer_popup'],20);
 		add_action( 'wp_enqueue_scripts', [$this, 'nbt_scripts'], 50 );
 		add_filter( 'woocommerce_get_price_html', [$this,'custom_sale_price_display'], 100, 2 );
