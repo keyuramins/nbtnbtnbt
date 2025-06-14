@@ -71,13 +71,13 @@ if ($product->is_type('variable')) {
     $table = $wpdb->prefix . 'yith_wapo_blocks';
     $block_ids = $wpdb->get_col(
         $wpdb->prepare(
-            "SELECT block_id FROM $table WHERE product_id = %d",
+            "SELECT id FROM $table WHERE product_id = %d",
             $product_id
         )
     );
     $has_addons = !empty($block_ids);
 
-	
+
     if (!$has_addons) {
         // No YITH add-ons: show the price
         if (function_exists('get_price_html_display')) {
