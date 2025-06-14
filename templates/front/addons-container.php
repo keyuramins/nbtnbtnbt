@@ -91,7 +91,7 @@ if ($product->is_type('variable')) {
                     },
                     success: function(response) {
                         if (response && response.success && response.data && response.data.price_html) {
-                            $('#nbt-variable-price-display').html(response.data.price_html + '<small class="woocommerce-price-suffix"> incl GST </small>');
+                            $('#nbt-variable-price-display').html(response.data.price_html);
                         }
                     }
                 });
