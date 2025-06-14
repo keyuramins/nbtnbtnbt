@@ -728,6 +728,8 @@ class nbtPublic{
 		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_on_order_page'], 10, 1);
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
 		add_action('woocommerce_email', [$this, 'remove_email_addresses'], 10, 1);
+		add_action('wp_ajax_nbt_get_variation_price', array($this, 'ajax_get_variation_price'));
+		add_action('wp_ajax_nopriv_nbt_get_variation_price', array($this, 'ajax_get_variation_price'));
 	}	
 
 	// Remove entire addresses section from order table
@@ -1163,5 +1165,24 @@ class nbtPublic{
         </form>
         <?php
         return ob_get_clean();
+    }
+
+    public function ajax_get_variation_price() {
+        $variation_id = isset($_POST['variation_id']) ? intval($_POST['variation_id']) : 0;
+        $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+        if (!$variation_id || !$product_id) {
+            wp_send_json_error(['message' => 'Invalid data']);
+        }
+        $variation = wc_get_product($variation_id);
+        $product = wc_get_product($product_id);
+        if (!$variation || !$product) {
+            wp_send_json_error(['message' => 'Product not found']);
+        }
+        if (function_exists('get_price_html_display')) {
+            $price_html = get_price_html_display($variation->get_price(), $variation);
+        } else {
+            $price_html = wc_price($variation->get_price());
+        }
+        wp_send_json_success(['price_html' => $price_html]);
     }
 }
