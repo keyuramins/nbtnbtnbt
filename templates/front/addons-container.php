@@ -66,7 +66,7 @@ if ($product->is_type('simple')) {
 // Only for variable products
 if ($product->is_type('variable')) {
     $has_addons = false;
-    $blocks = get_post_meta($product->get_id(), '_yith_wapo_blocks', true);
+    $blocks = get_post_meta($product->get_id(), '_yith_wapo_addons', true);
     if (!empty($blocks)) {
         $has_addons = true;
     }
