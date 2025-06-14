@@ -96,7 +96,7 @@ if ($product->is_type('variable')) {
         }
     } else {
         // Add a placeholder for JS to update price when a variation is selected
-        echo '<div id="nbt-variation-price-placeholder" style="display:none;"></div>';
+        echo '<div id="nbt-variation-price-placeholder" style="display:none !important;"></div>';
         ?>
         <script>
         jQuery(document).ready(function($) {
