@@ -500,24 +500,24 @@ class nbtPublic{
 	
 
 
-		// public function get_cart_item_from_session( $cart_item, $values ) {
-	    // 	$product = $cart_item['data'];
-	    // 	if($product && isset($this->current_locations) && $this->current_locations != $this->default_location){
-	    // 		$product_id = $product->get_id();
-		//        	$_sydney_price = get_post_meta($product_id, '_'.$this->current_locations.'_price', true);
-		//         $sale_price = get_post_meta($product_id , '_'.$this->current_locations.'_sale_price', true);
+		public function get_cart_item_from_session( $cart_item, $values ) {
+	    	$product = $cart_item['data'];
+	    	if($product && isset($this->current_locations) && $this->current_locations != $this->default_location){
+	    		$product_id = $product->get_id();
+		       	$_current_location_price = get_post_meta($product_id, '_'.$this->current_locations.'_price', true);
+		        $sale_price = get_post_meta($product_id , '_'.$this->current_locations.'_sale_price', true);
 		    	
-		//     	if($sale_price != ''){    	
-		//     		$cart_item['data']->set_price($sale_price);
-		//     	}elseif($_sydney_price > 0){
+		    	if($sale_price != ''){    	
+		    		$cart_item['data']->set_price($sale_price);
+		    	}elseif($_current_location_price > 0){
 		    		
-		//             $cart_item['data']->set_price($_sydney_price);
-		//     	}    	   		
+		            $cart_item['data']->set_price($_current_location_price);
+		    	}    	   		
 	    	
-	    // 	}
+	    	}
 			
-		// 	return $cart_item;
-		// }
+			return $cart_item;
+		}
 	function change_shipping_label( $total_rows, $order, $tax_display ) {
 		
 	    if ( isset( $total_rows['shipping'] ) ) {
