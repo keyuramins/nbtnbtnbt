@@ -77,6 +77,7 @@ if ($product->is_type('variable')) {
     );
     $has_addons = !empty($block_ids);
 
+	
     if (!$has_addons) {
         // No YITH add-ons: show the price
         if (function_exists('get_price_html_display')) {
