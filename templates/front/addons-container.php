@@ -66,14 +66,6 @@ if ($product->is_type('simple')) {
 // Only for variable products
 if ($product->is_type('variable')) {
     $has_addons = false;
-    // Preferred: Use YITH API if available
-    if (function_exists('YITH_WAPO')) {
-        $addons = YITH_WAPO()->get_product_addons($product->get_id());
-        if (!empty($addons)) {
-            $has_addons = true;
-        }
-    }
-    // Fallback: Check post meta for blocks
     $blocks = get_post_meta($product->get_id(), '_yith_wapo_blocks', true);
     if (!empty($blocks)) {
         $has_addons = true;
