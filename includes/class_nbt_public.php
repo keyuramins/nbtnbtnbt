@@ -304,86 +304,22 @@ class nbtPublic{
   	$is_product_listing = is_product_category() || is_product_tag() || is_shop() || is_home() || is_front_page() || is_product();
 	   if ( $this->current_locations != $this->default_location && $is_product_listing ) {
    
-	        // Get the custom prices for Sydney
-	        $sydney_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
-	        $sydney_sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
+	        // Get the custom prices for Current location
+	        $current_location_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
+	        $current_location_sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
 
 	        // Set the displayed price based on the selected location
-	        if ($sydney_sale_price != '' && $sydney_sale_price > 0) {
-	            // If there's a sale price for Sydney, use it
-	            $price = $sydney_sale_price;
-	        } elseif ($sydney_price != '' && $sydney_price > 0) {
-	            // Use the regular price for Sydney
-	            $price = $sydney_price;
+	        if ($current_location_sale_price != '' && $current_location_sale_price > 0) {
+	            // If there's a sale price for Current location, use it
+	            $price = $current_location_sale_price;
+	        } elseif ($current_location_price != '' && $current_location_price > 0) {
+	            // Use the regular price for Current location
+	            $price = $current_location_price;
 	        }
 	    }
 	    
 	    return $price;
 	}
-	function nbt_variation_price( $price, $variation, $product ) {
-		
-	    // Delete product cached price  (if needed)
-	    wc_delete_product_transients($variation->get_id());
-		if ( $this->current_locations != $this->default_location) {
-
-	    	
-	        // Get the custom prices for Sydney
-	       $sydney_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
-	       $sydney_sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
-
-	        // Set the displayed price based on the selected location
-	        if (!empty($sydney_sale_price)) {
-	            // If there's a sale price for Sydney, use it
-	            $price = $sydney_sale_price;
-	        } elseif ($sydney_price) {
-	            // Use the regular price for Sydney
-	            $price = $sydney_price;
-	        }
-	    }
-	 
-	    return $price;
-	}
-	function nbt_variation_regular_price($price, $variation,$product) {
-
-		 wc_delete_product_transients($variation->get_id());
-	    // Get the variation ID
-		
-		if ( $this->current_locations != $this->default_location) {
-
-	    	
-	        // Get the custom prices for Sydney
-	       $sydney_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
-	       
-	        // Get the custom prices for Sydney
-	       
-	       if ($sydney_price) {
-	            // Use the regular price for Sydney
-	            $price = $sydney_price;
-	        }
-	    }
-	  
-	    return $price;
-	}
-	function nbt_variation_sale_price($price, $variation,$product) {
-		 wc_delete_product_transients($variation->get_id());
-	    // Get the variation ID
-		
-		if ( $this->current_locations != $this->default_location) {
-
-	    	
-	        // Get the custom prices for Sydney
-	      
-	       $sydney_sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
-	       if ($sydney_sale_price) {
-	            // Use the regular price for Sydney
-	            $price = $sydney_sale_price;
-	        }
-	    }
-	 
-	    return $price;
-	}
-
-
 	
 	function yith_wapo_product_price($price, $product){
 		$location_price = $this->current_locations;
