@@ -65,25 +65,33 @@ if ($product->is_type('simple')) {
 
 // Only for variable products
 if ($product->is_type('variable')) {
-    $has_addons = false;
-    $blocks = get_post_meta($product->get_id(), '_yith_wapo_addons', true);
-    if (!empty($blocks)) {
-        $has_addons = true;
-    }
-    // If no add-ons, display the price
+    global $wpdb;
+    $product_id = $product->get_id();
+    // Adjust the table name if your DB prefix is not 'wp_'
+    $table = $wpdb->prefix . 'yith_wapo_blocks_products';
+    $block_ids = $wpdb->get_col(
+        $wpdb->prepare(
+            "SELECT block_id FROM $table WHERE product_id = %d",
+            $product_id
+        )
+    );
+    $has_addons = !empty($block_ids);
+
     if (!$has_addons) {
+        // No YITH add-ons: show the price
         if (function_exists('get_price_html_display')) {
             echo '<div class="nbt_display_price">';
             echo get_price_html_display($product_price, $product);
-            echo '<small class="woocommerce-price-suffix"> has addons </small>';
+            echo '<small class="woocommerce-price-suffix"> has no addons </small>';
             echo '</div>';
         } else {
             echo '<div class="nbt_display_price">';
             echo wc_price($product_price);
-            echo '<small class="woocommerce-price-suffix"> no addons </small>';
+            echo '<small class="woocommerce-price-suffix"> has addons </small>';
             echo '</div>';
         }
     }
+    // If $has_addons is true, do NOT show the price (handled by YITH blocks)
 }
 ?>
 
