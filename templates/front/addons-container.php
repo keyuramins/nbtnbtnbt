@@ -66,29 +66,35 @@ if ($product->is_type('simple')) {
 // Only for variable products
 if ($product->is_type('variable')) {
     global $wpdb;
-    $product_id = $product->get_id();
-    // Adjust the table name if your DB prefix is not 'wp_'
-    $table = $wpdb->prefix . 'yith_wapo_blocks';
-    $block_ids = $wpdb->get_col(
-        $wpdb->prepare(
-            "SELECT id FROM $table WHERE product_id = %d",
-            $product_id
-        )
-    );
-    $has_addons = !empty($block_ids);
+    $product_id = (string) $product->get_id(); // YITH stores as string
 
+    $table = $wpdb->prefix . 'yith_wapo_blocks';
+    $blocks = $wpdb->get_results("SELECT settings FROM $table");
+
+    $has_addons = false;
+    foreach ($blocks as $block) {
+        $settings = maybe_unserialize($block->settings);
+        if (
+            isset($settings['rules']['show_in_products']) &&
+            is_array($settings['rules']['show_in_products']) &&
+            in_array($product_id, $settings['rules']['show_in_products'], true)
+        ) {
+            $has_addons = true;
+            break;
+        }
+    }
 
     if (!$has_addons) {
         // No YITH add-ons: show the price
         if (function_exists('get_price_html_display')) {
             echo '<div class="nbt_display_price">';
             echo get_price_html_display($product_price, $product);
-            echo '<small class="woocommerce-price-suffix"> has no addons </small>';
+            echo '<small class="woocommerce-price-suffix"> incl GST </small>';
             echo '</div>';
         } else {
             echo '<div class="nbt_display_price">';
             echo wc_price($product_price);
-            echo '<small class="woocommerce-price-suffix"> has addons </small>';
+            echo '<small class="woocommerce-price-suffix"> incl GST </small>';
             echo '</div>';
         }
     }
