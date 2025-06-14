@@ -74,11 +74,9 @@ if ($product->is_type('variable')) {
         }
     }
     // Fallback: Check post meta for blocks
-    if (!$has_addons) {
-        $blocks = get_post_meta($product->get_id(), '_yith_wapo_blocks', true);
-        if (!empty($blocks)) {
-            $has_addons = true;
-        }
+    $blocks = get_post_meta($product->get_id(), '_yith_wapo_blocks', true);
+    if (!empty($blocks)) {
+        $has_addons = true;
     }
     // If no add-ons, display the price
     if (!$has_addons) {
