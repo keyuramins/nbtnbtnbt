@@ -65,14 +65,8 @@ if ($product->is_type('simple')) {
 
 // Check if the current product is a variable product
 if ($product->is_type('variable')) {
-    echo '<div class="nbt_display_price" id="nbt-variable-price-display">';
-    if (function_exists('get_price_html_display')) {
-        echo get_price_html_display($product_price, $product); // Output initial price range or formatted price
-    } else {
-        echo wc_price($product_price); // Fallback to WooCommerce default
-    }
-    //echo '<small class="woocommerce-price-suffix"> incl GST </small>';
-    echo '</div>';
+    // Hide price initially, show only after variation is selected
+    echo '<div class="nbt_display_price" id="nbt-variable-price-display" style="display:none; font-weight:bold; color:#0E70B9;"></div>';
     ?>
     <script>
     jQuery(document).ready(function($) {
@@ -91,10 +85,13 @@ if ($product->is_type('variable')) {
                     },
                     success: function(response) {
                         if (response && response.success && response.data && response.data.price_html) {
-                            $('#nbt-variable-price-display').html(response.data.price_html);
+                            $('#nbt-variable-price-display').html(response.data.price_html).css({'display':'block','font-weight':'bold','color':'#0E70B9'});
                         }
                     }
                 });
+            } else {
+                // Hide price if no variation selected
+                $('#nbt-variable-price-display').hide();
             }
         });
     });
