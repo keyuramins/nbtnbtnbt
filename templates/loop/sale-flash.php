@@ -22,10 +22,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $post, $product;
 
 $location_price = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
-$_sydney_sale_price = get_post_meta($product->get_id(), '_'.$location_price.'_sale_price', true);
+$_location_sale_price = get_post_meta($product->get_id(), '_'.$location_price.'_sale_price', true);
 $default_location = get_default_location();
 if( $location_price != $default_location){ 
-    if(!empty($_sydney_sale_price)){?>
+    if(!empty($_location_sale_price)){?>
     	<div class="badge-container is-larger absolute left top z-1 133">
     	<?php 
 				$custom_text = get_theme_mod( 'sale_bubble_text' );
@@ -35,7 +35,7 @@ if( $location_price != $default_location){
 			  if($product->is_type('variable')){
 			  	$flag = false;
 
-			  	foreach($_sydney_sale_price as $key => $vid){
+			  	foreach($_location_sale_price as $key => $vid){
 			  			$sale_price = get_post_meta($key,  '_'.$location_price.'_sale_price', true);
 				  		if(isset($sale_price) && $sale_price > 0){
 				  			$flag = true;

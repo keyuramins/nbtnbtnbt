@@ -37,8 +37,6 @@ function get_price_html_display($price, $product) {
 	    $locations = get_locations();
         $default_location = get_default_location();
        
-
-	    // Handle Sydney specific pricing.
 	    if ( $current_locations != '') {
 	    	if($product && $product->is_type('simple')){   
 
@@ -53,10 +51,8 @@ function get_price_html_display($price, $product) {
 		        
 
 		        if (!empty($sale_price)) {
-		            // Sydney specific sale price format.
 		            return sprintf('<del>%s</del><ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price), wc_price($sale_price));
 		        } else {
-		            // Sydney specific regular price format.
 		            return sprintf('<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price));
 		        }
 		   
@@ -79,10 +75,8 @@ function get_price_html_display($price, $product) {
 					$sale_price = $product->get_sale_price();
 	            }
 	             if (!empty($sale_price)) {
-	                // Sydney specific sale price format.
 	                return sprintf('<del>%s</del><ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price), wc_price($sale_price));
 	            } elseif(!empty($sale_price)) {
-	                // Sydney specific regular price format.
 	                return sprintf('<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price));
 	            }else{
 	                return $price;
