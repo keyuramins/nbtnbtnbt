@@ -62,6 +62,39 @@ if ($product->is_type('simple')) {
     $sale_price = floatval($product->get_sale_price());
     echo "<script>window.NBT_SIMPLE_PRODUCT_PRICES = {regular: $regular_price, sale: $sale_price};</script>";
 }
+
+// Only for variable products
+if ($product->is_type('variable')) {
+    $has_addons = false;
+    // Preferred: Use YITH API if available
+    if (function_exists('YITH_WAPO')) {
+        $addons = YITH_WAPO()->get_product_addons($product->get_id());
+        if (!empty($addons)) {
+            $has_addons = true;
+        }
+    }
+    // Fallback: Check post meta for blocks
+    if (!$has_addons) {
+        $blocks = get_post_meta($product->get_id(), '_yith_wapo_blocks', true);
+        if (!empty($blocks)) {
+            $has_addons = true;
+        }
+    }
+    // If no add-ons, display the price
+    if (!$has_addons) {
+        if (function_exists('get_price_html_display')) {
+            echo '<div class="nbt_display_price">';
+            echo get_price_html_display($product_price, $product);
+            echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+            echo '</div>';
+        } else {
+            echo '<div class="nbt_display_price">';
+            echo wc_price($product_price);
+            echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+            echo '</div>';
+        }
+    }
+}
 ?>
 
 <?php
