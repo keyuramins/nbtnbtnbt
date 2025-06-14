@@ -36,19 +36,19 @@ do_action( 'yith_wapo_before_main_container' );
 
 	<?php 
 	//Hide our custom price block for simple products
-	if($product->is_type('simple')){
-		if(function_exists('get_price_html_display')) {
-			echo '<div class="nbt_display_price">';
-			echo get_price_html_display($product_price, $product);
-			echo '<small class="woocommerce-price-suffix"> incl GST </small>';
-			echo '</div>';
-		} else {
-			echo '<div class="nbt_display_price">';
-			echo wc_price($product_price);
-			echo '<small class="woocommerce-price-suffix"> incl GST </small>';
-			echo '</div>';
-		}
-	}
+	// if($product->is_type('simple')){
+	// 	if(function_exists('get_price_html_display')) {
+	// 		echo '<div class="nbt_display_price">';
+	// 		echo get_price_html_display($product_price, $product);
+	// 		echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+	// 		echo '</div>';
+	// 	} else {
+	// 		echo '<div class="nbt_display_price">';
+	// 		echo wc_price($product_price);
+	// 		echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+	// 		echo '</div>';
+	// 	}
+	// }
   	?>
 	<?php $instance->print_blocks();
     ?>
