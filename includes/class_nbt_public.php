@@ -70,25 +70,6 @@ class nbtPublic{
 			<?php
 		}
 	}
-	function header_location(){
-	    // Retrieves the 'location_price' value from the POST request if available, 
-	    // otherwise, it retrieves from the cookie.
-		//$location_price = isset($_POST['location_price']) ? $_POST['location_price'] : $_COOKIE['location_price']; 
-		$location_price = isset($_POST['location_price']) ? $_POST['location_price'] : 
-	                      (isset($_COOKIE['location_price']) ? $_COOKIE['location_price'] : '');
-		ob_start();
-	    ?>
-		<form id="header_location" method="post">
-			<select name="location_price" class="location_price">
-				<option value="melbourne" <?php echo ($location_price == 'melbourne') ? 'selected' : ''; ?>>Melbourne</option>
-				<option value="sydney" <?php echo ($location_price == 'sydney') ? 'selected' : ''; ?>>Sydney</option>
-			</select>					
-		</form>
-	<?php
-		$html = ob_get_contents();
-		ob_clean();
-		return $html;
-	}
 	//Empty cart when location is selected or changed
 	function location_submit(){
 		if(isset($_POST['location_price']) && $_POST['location_price'] != null){
@@ -730,10 +711,9 @@ class nbtPublic{
 		 
 		add_action('wp_footer', [$this, 'btlocation_footer_popup'],20);
 		add_action( 'wp_enqueue_scripts', [$this, 'nbt_scripts'], 50 );
-		//add_shortcode("header_location", [$this, "header_location"],10);
 		add_filter( 'woocommerce_get_price_html', [$this,'custom_sale_price_display'], 100, 2 );
 		add_action('init',  [$this, 'location_submit']);
-		add_filter("yith_wapo_product_price", [$this, "yith_wapo_product_price"], 20, 2);
+		//add_filter("yith_wapo_product_price", [$this, "yith_wapo_product_price"], 20, 2);
 		add_filter("yith_wapo_product_price", [$this, "yith_wapo_product_price_new"], 20, 2);
 		add_filter('yith_wapo_blocks_product_price', [$this, 'nbt_get_price'], 10,3);
 		add_filter('woocommerce_locate_template', [$this,'nbt_override_wc_template'], 100, 3);
