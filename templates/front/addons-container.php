@@ -101,6 +101,11 @@ if ($product->is_type('variable')) {
     }
     // If $has_addons is true, do NOT show any other price (handled by YITH add-on table)
 }
+
+if ($product->is_type('variable') && $has_addons) {
+    // Hide WooCommerce's variation price output when add-ons are present
+    echo '<style>.woocommerce-variation-price { display: none !important; }</style>';
+}
 ?>
 
 <?php
