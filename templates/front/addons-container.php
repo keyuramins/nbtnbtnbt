@@ -63,13 +63,15 @@ if ($product->is_type('simple')) {
     echo "<script>window.NBT_SIMPLE_PRODUCT_PRICES = {regular: $regular_price, sale: $sale_price};</script>";
 }
 
-// Only for variable products
+// --- YITH Add-on Price Display Logic for Variable Products ---
+// If a variable product has YITH add-ons, suppress all default WooCommerce price displays
+// except for the add-on table. Only show the price if there are NO add-ons.
 if ($product->is_type('variable')) {
     global $wpdb;
     $product_id = (string) $product->get_id(); // YITH stores as string
     $table = $wpdb->prefix . 'yith_wapo_blocks';
     $blocks = $wpdb->get_results("SELECT settings FROM $table");
-    $has_addons = false;
+    $has_addons = true; // Assume product has add-ons unless proven otherwise
     foreach ($blocks as $block) {
         $settings = maybe_unserialize($block->settings);
         if (
@@ -79,9 +81,11 @@ if ($product->is_type('variable')) {
         ) {
             $has_addons = true;
             break;
+        } else {
+            $has_addons = false;
         }
     }
-    // Only show price if NO add-ons, or if a variation is selected (handled by JS)
+    // Only show price if NO add-ons
     if (!$has_addons) {
         if (function_exists('get_price_html_display')) {
             echo '<div class="nbt_display_price">';
@@ -94,27 +98,8 @@ if ($product->is_type('variable')) {
             echo '<small class="woocommerce-price-suffix"> incl GST </small>';
             echo '</div>';
         }
-    } else {
-        // Add a placeholder for JS to update price when a variation is selected
-        echo '<div id="nbt-variation-price-placeholder" style="display:none !important;"></div>';
-        ?>
-        <script>
-        jQuery(document).ready(function($) {
-            var $form = $('.variations_form');
-            $form.on('show_variation', function(event, variation) {
-                // Show the price for the selected variation
-                var priceHtml = variation.price_html;
-                if (priceHtml) {
-                    $('#nbt-variation-price-placeholder').html(priceHtml + '<small class="woocommerce-price-suffix"> incl GST </small>').show();
-                }
-            });
-            $form.on('hide_variation', function() {
-                $('#nbt-variation-price-placeholder').hide().html('');
-            });
-        });
-        </script>
-        <?php
     }
+    // If $has_addons is true, do NOT show any other price (handled by YITH add-on table)
 }
 ?>
 
