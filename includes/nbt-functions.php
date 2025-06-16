@@ -32,7 +32,7 @@ function get_default_location(){
 }
 
 function get_price_html_display($price, $product) {
-    $current_locations = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
+    $current_locations = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : get_default_location());
     $locations = get_locations();
     $default_location = get_default_location();
 
@@ -66,48 +66,61 @@ function get_price_html_display($price, $product) {
                 return $price;
             }
         }
-        // --- Variable product price range for selected location ---
-        if ($product->is_type('variable')) {
-            $variations = $product->get_children();
-            $reg_prices = array();
-            $sale_prices = array();
-            foreach ($variations as $value) {
-                $single_variation = new WC_Product_Variation($value);
-                if ($current_locations != $default_location) {
-                    $reg = get_post_meta($single_variation->get_id(), '_' . $current_locations . '_price', true);
-                    $sale = get_post_meta($single_variation->get_id(), '_' . $current_locations . '_sale_price', true);
-                } else {
-                    $reg = $single_variation->get_regular_price();
-                    $sale = $single_variation->get_price();
-                }
-                if ($reg !== '' && $reg !== false) $reg_prices[] = floatval($reg);
-                if ($sale !== '' && $sale !== false) $sale_prices[] = floatval($sale);
-            }
-            // Remove empty values
-            $reg_prices = array_filter($reg_prices, function($v) { return $v > 0; });
-            $sale_prices = array_filter($sale_prices, function($v) { return $v > 0; });
-            if (!empty($sale_prices)) {
-                sort($reg_prices);
-                sort($sale_prices);
-                $min_price = min($reg_prices);
-                $max_price = max($reg_prices);
-                $min_sale = min($sale_prices);
-                $max_sale = max($sale_prices);
-                $reg_price_html = ($min_price == $max_price) ? wc_price($min_price) : wc_format_price_range($min_price, $max_price);
-                $sale_price_html = ($min_sale == $max_sale) ? wc_price($min_sale) : wc_format_price_range($min_sale, $max_sale);
-                $suffix = $product->get_price_suffix($price);
-                return wc_format_sale_price($reg_price_html, $sale_price_html) . $suffix;
-            } elseif (!empty($reg_prices)) {
-                sort($reg_prices);
-                $min_price = min($reg_prices);
-                $max_price = max($reg_prices);
-                $reg_price_html = ($min_price == $max_price) ? wc_price($min_price) : wc_format_price_range($min_price, $max_price);
-                return sprintf('<ins>%s</ins>%s', $reg_price_html, $product->get_price_suffix());
+    }
+    if ($product->is_type('variable')) {
+        $reg_price = '';
+        $variations = $product->get_children();
+        $reg_prices = array();
+        $sale_prices = array();
+        foreach ($variations as $value) {
+            $single_variation = new WC_Product_Variation($value);
+            if ($current_locations != $default_location) {
+                $variation_regular = get_post_meta($single_variation->get_id(), '_' . $current_locations . '_price', true);
+                $variation_sale = get_post_meta($single_variation->get_id(), '_' . $current_locations . '_sale_price', true);
             } else {
-                return $price;
+                $variation_regular = $single_variation->get_regular_price();
+                $variation_sale = $single_variation->get_price();
+            }
+            if ($variation_regular !== '' && $variation_regular !== false) {
+                $reg_prices[] = floatval($variation_regular);
+            }
+            if ($variation_sale !== '' && $variation_sale !== false) {
+                $sale_prices[] = floatval($variation_sale);
             }
         }
+        if (!empty($reg_prices)) {
+            sort($reg_prices);
+            $min_price = $reg_prices[0];
+            $max_price = $reg_prices[count($reg_prices) - 1];
+            if ($min_price == $max_price) {
+                $reg_price = wc_price($min_price);
+            } else {
+                $reg_price = wc_format_price_range($min_price, $max_price);
+            }
+        } else {
+            $reg_price = '';
+        }
+        if (!empty($sale_prices)) {
+            sort($sale_prices);
+            $min_sale = $sale_prices[0];
+            $max_sale = $sale_prices[count($sale_prices) - 1];
+            if ($min_sale == $max_sale) {
+                $sale_price = wc_price($min_sale);
+            } else {
+                $sale_price = wc_format_price_range($min_sale, $max_sale);
+            }
+        } else {
+            $sale_price = '';
+        }
+        $suffix = $product->get_price_suffix($price);
+        if ($sale_price && $reg_price && $sale_price !== $reg_price) {
+            return wc_format_sale_price($reg_price, $sale_price) . $suffix;
+        } elseif ($reg_price) {
+            return $reg_price . $suffix;
+        } else {
+            return $price;
+        }
     }
-    // Fallback to original price
+    // Return regular price if not on sale.
     return $price;
 }
