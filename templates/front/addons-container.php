@@ -96,6 +96,8 @@ if ($product->is_type('variable')) {
         }
         echo '<small class="woocommerce-price-suffix"> incl GST </small>';
         echo '</div>';
+        // Add CSS to hide the default WooCommerce price block
+        echo '<style>.product .summary .price { display: none !important; }</style>';
         // Add JS to update price on variation selection
         ?>
         <script>
