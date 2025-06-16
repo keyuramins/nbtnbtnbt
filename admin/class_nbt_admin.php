@@ -161,10 +161,16 @@ class nbtAdmin{
                    if ($price !== null && $price !== '') {
                        update_post_meta($variation_id, '_'.$key.'_price', $price);
                        error_log("[NBT DEBUG] Saved variation meta for variation_id $variation_id: {$key}_price=$price");
+                   } else {
+                       delete_post_meta($variation_id, '_'.$key.'_price');
+                       error_log("[NBT DEBUG] Deleted regular price meta for variation_id $variation_id: {$key}_price");
                    }
                    if ($sale_price !== null && $sale_price !== '') {
                        update_post_meta($variation_id, '_'.$key.'_sale_price', $sale_price);
                        error_log("[NBT DEBUG] Saved variation meta for variation_id $variation_id: {$key}_sale_price=$sale_price");
+                   } else {
+                       delete_post_meta($variation_id, '_'.$key.'_sale_price');
+                       error_log("[NBT DEBUG] Deleted sale price meta for variation_id $variation_id: {$key}_sale_price");
                    }
                 }
             }
