@@ -737,27 +737,6 @@ class nbtPublic{
 		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_on_order_page'], 10, 1);
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
 		add_action('woocommerce_email', [$this, 'remove_email_addresses'], 10, 1);
-		add_action('woocommerce_after_single_product', function() {
-		    global $product;
-		    if ($product && $product->is_type('variable')) : ?>
-		        <script>
-		        jQuery(document).ready(function($) {
-		            var $form = $('form.variations_form');
-		            $form.on('show_variation', function(event, variation) {
-		                // Hide the price range at the top when a variation is selected
-		                var priceBlock = $('.product .price');
-		                priceBlock.hide();
-		                console.log('NBT LOG: show_variation event fired. Hiding price range.', priceBlock.length, priceBlock.get());
-		            });
-		            $form.on('hide_variation', function() {
-		                var priceBlock = $('.product .price');
-		                priceBlock.show();
-		                console.log('NBT LOG: hide_variation event fired. Showing price range.', priceBlock.length, priceBlock.get());
-		            });
-		        });
-		        </script>
-		    <?php endif;
-		});
 	}	
 
 	// Remove entire addresses section from order table
