@@ -745,12 +745,12 @@ class nbtPublic{
 		            var $form = $('form.variations_form');
 		            $form.on('show_variation', function(event, variation) {
 		                // Hide the price range at the top when a variation is selected
-		                var priceBlock = $('.price');
+		                var priceBlock = $('.product .price');
 		                priceBlock.hide();
 		                console.log('NBT LOG: show_variation event fired. Hiding price range.', priceBlock.length, priceBlock.get());
 		            });
 		            $form.on('hide_variation', function() {
-		                var priceBlock = $('.price');
+		                var priceBlock = $('.product .price');
 		                priceBlock.show();
 		                console.log('NBT LOG: hide_variation event fired. Showing price range.', priceBlock.length, priceBlock.get());
 		            });
