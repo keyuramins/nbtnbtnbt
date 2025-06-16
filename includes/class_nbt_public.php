@@ -708,7 +708,7 @@ class nbtPublic{
 		add_action('init',  [$this, 'location_submit']);
 		//add_filter("yith_wapo_product_price", [$this, "yith_wapo_product_price"], 20, 2);
 		add_filter("yith_wapo_product_price", [$this, "yith_wapo_product_price_new"], 20, 2);
-		add_filter('yith_wapo_blocks_product_price', [$this, 'nbt_get_price'], 10,3);
+		add_filter('yith_wapo_blocks_product_price', [$this,'nbt_get_price'], 10,3);
 		add_filter('woocommerce_locate_template', [$this,'nbt_override_wc_template'], 100, 3);
 		add_filter('woocommerce_product_variation_get_price', [$this,'nbt_product_variation_get_price'] , 99, 2 );
 		add_filter( 'woocommerce_get_order_item_totals', [$this, 'change_shipping_label'],50,3 );
@@ -737,6 +737,24 @@ class nbtPublic{
 		add_action('woocommerce_order_details_after_order_table', [$this, 'show_pickup_details_on_order_page'], 10, 1);
 		remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_details_table', 10 );
 		add_action('woocommerce_email', [$this, 'remove_email_addresses'], 10, 1);
+		add_action('woocommerce_after_single_product', function() {
+		    global $product;
+		    if ($product && $product->is_type('variable')) : ?>
+		        <script>
+		        jQuery(document).ready(function($) {
+		            var $form = $('form.variations_form');
+		            $form.on('show_variation', function(event, variation) {
+		                // Hide the price range at the top when a variation is selected
+		                $('.product .summary .price').hide();
+		            });
+		            $form.on('hide_variation', function() {
+		                // Show the price range again if the selection is cleared
+		                $('.product .summary .price').show();
+		            });
+		        });
+		        </script>
+		    <?php endif;
+		});
 	}	
 
 	// Remove entire addresses section from order table
