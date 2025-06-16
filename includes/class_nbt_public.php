@@ -20,7 +20,14 @@ class nbtPublic{
     	
         $this->locations = get_locations();
         $this->default_location = get_default_location();
-        $this->current_locations = isset($_POST['location_price']) ? sanitize_text_field($_POST['location_price']) : (isset($_COOKIE['location_price']) ? sanitize_text_field($_COOKIE['location_price']) : '');
+        // Always set current_locations from POST or COOKIE, including AJAX
+        if (isset($_POST['location_price'])) {
+            $this->current_locations = sanitize_text_field($_POST['location_price']);
+        } elseif (isset($_COOKIE['location_price'])) {
+            $this->current_locations = sanitize_text_field($_COOKIE['location_price']);
+        } else {
+            $this->current_locations = $this->default_location;
+        }
         // Add filter to hide billing details on order details page
         add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_details_order_page'), 99, 3);
 		add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_details_from_emails'), 99, 3);
@@ -100,6 +107,7 @@ class nbtPublic{
 		        }
 			}
 	        elseif($product && $product->is_type('variation')){
+	        	error_log('NBT DEBUG: Showing price for variation ' . $product->get_id() . ' at location ' . $this->current_locations . ' (type: variation)');
 	        	if($this->current_locations != $this->default_location){
 	            	$regular_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
 	            	$sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
@@ -110,8 +118,8 @@ class nbtPublic{
 	             if (!empty($sale_price)) {
 	                $suffix = $product->get_price_suffix($price);
 		        	return wc_format_sale_price($regular_price, $sale_price).$suffix;
-	            } elseif(!empty($sale_price)) {
-	                return sprintf('<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price));
+	            } elseif(!empty($regular_price)) {
+	                return sprintf('<ins>%s</ins>%s', wc_price($regular_price), $product->get_price_suffix());
 	            }else{
 	                return $price;
 	            }
@@ -119,6 +127,7 @@ class nbtPublic{
 			
 		
 	    if($product->is_type('variable')){
+	            error_log('NBT DEBUG: Showing price for variable product ' . $product->get_id() . ' at location ' . $this->current_locations . ' (type: variable)');
 	            if($this->current_locations != $this->default_location){
 	            	$reg_price = '';
 		            if(!$product->is_on_sale()){
