@@ -87,17 +87,29 @@ if ($product->is_type('variable')) {
     }
     // Only show price if NO add-ons
     if (!$has_addons) {
+        // Output a single price block with a placeholder for JS updates
+        echo '<div class="nbt_display_price" id="nbt-variable-product-price">';
         if (function_exists('get_price_html_display')) {
-            echo '<div class="nbt_display_price">';
             echo get_price_html_display($product_price, $product);
-            echo '<small class="woocommerce-price-suffix"> incl GST </small>';
-            echo '</div>';
         } else {
-            echo '<div class="nbt_display_price">';
             echo wc_price($product_price);
-            echo '<small class="woocommerce-price-suffix"> incl GST </small>';
-            echo '</div>';
         }
+        echo '<small class="woocommerce-price-suffix"> incl GST </small>';
+        echo '</div>';
+        // Add JS to update price on variation selection
+        ?>
+        <script>
+        jQuery(document).ready(function($) {
+            var $form = $('form.variations_form');
+            $form.on('show_variation', function(event, variation) {
+                var priceHtml = variation.price_html;
+                if (priceHtml) {
+                    $('#nbt-variable-product-price').html(priceHtml + '<small class="woocommerce-price-suffix"> incl GST </small>');
+                }
+            });
+        });
+        </script>
+        <?php
     }
     // If $has_addons is true, do NOT show any other price (handled by YITH add-on table)
 }
