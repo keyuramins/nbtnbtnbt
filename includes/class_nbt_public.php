@@ -34,7 +34,6 @@ class nbtPublic{
 		add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_in_dashboard'), 99, 3);
 		// Remove Addresses tab from My Account
         add_filter('woocommerce_account_menu_items', array($this, 'nbt_remove_my_account_addresses_tab'), 99);
-        add_filter('woocommerce_get_price_html', array($this, 'nbt_override_variable_price_html'), 20, 2);
     }
 
 	function nbt_scripts() {
@@ -131,57 +130,39 @@ class nbtPublic{
 	            error_log('NBT DEBUG: Showing price for variable product ' . $product->get_id() . ' at location ' . $this->current_locations . ' (type: variable)');
 	            if($this->current_locations != $this->default_location){
 	            	$reg_price = '';
-		            if(!$product->is_on_sale()){
-		                return $price;
-		            }
-	                $variations = $product->get_children();
-	                $reg_prices = array();
-	                $sale_prices = array();
-	                foreach ($variations as $value) {
+		            $variations = $product->get_children();
+		            $reg_prices = array();
+		            $sale_prices = array();
+		            foreach ($variations as $value) {
 		                $single_variation=new WC_Product_Variation($value);
-		                array_push($reg_prices, get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true));
-		                array_push($sale_prices, get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true));
-		            }		           
-	            }else{
-		            $reg_price = '';
-		            if(!$product->is_on_sale()){
-		                return $price;
+		                $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
+		                if($price > 0) {
+		                    array_push($reg_prices, $price);
+		                }
 		            }
-	                $variations = $product->get_children();
-	                $reg_prices = array();
-	                $sale_prices = array();
-	                foreach ($variations as $value) {
+		            if(!empty($reg_prices)) {
+		                sort($reg_prices);
+		                $min_price = $reg_prices[0];
+		                $max_price = $reg_prices[count($reg_prices)-1];
+		                if($min_price == $max_price) {
+		                    $reg_price = wc_price($min_price);
+		                } else {
+		                    $reg_price = wc_format_price_range($min_price, $max_price);
+		                }
+		            }
+		            $sale_price = '';
+		            foreach ($variations as $value) {
 		                $single_variation=new WC_Product_Variation($value);
-		                array_push($reg_prices, $single_variation->get_regular_price());
-		                array_push($sale_prices, $single_variation->get_price());
+		                $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
+		                if($price > 0) {
+		                    $sale_price = $price;
+		                }
 		            }
-		           
-	            }
-	            sort($reg_prices);
-		        sort($sale_prices);
-
-	            $min_price = $reg_prices[0];
-	            $max_price = $reg_prices[count($reg_prices)-1];
-	            if($min_price == $max_price)
-	            {
-	                $reg_price = wc_price($min_price);
-	            }
-	            else
-	            {
-	                $reg_price = wc_format_price_range($min_price, $max_price);
-	            }
-	                $min_price = $sale_prices[0];
-	                $max_price = $sale_prices[count($sale_prices)-1];
-	            if($min_price == $max_price)
-	            {
-	                $sale_price = wc_price($min_price);
-	            }
-	            else
-	            {
-	                $sale_price = wc_format_price_range($min_price, $max_price);
-	            }
-		        $suffix = $product->get_price_suffix($price);
-		        return wc_format_sale_price($reg_price, $sale_price).$suffix;
+		            if(!empty($sale_price)) {
+		                $suffix = $product->get_price_suffix($price);
+		                return wc_format_sale_price($reg_price, $sale_price).$suffix;
+		            }
+		        }
 	        }
 	       
 	    // Return regular price if not on sale.
@@ -232,33 +213,27 @@ class nbtPublic{
                 // Loop through each variation
                 foreach ($variations as $value) {
                     // Create a WC_Product_Variation object for each variation
-                    $single_variation = new WC_Product_Variation($value);
+                    $single_variation=new WC_Product_Variation($value);
                     // Get the location-specific regular price for the variation
                     $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
                     // Get the location-specific sale price for the variation
-                    $sale_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
-                    // Only add prices if they exist and are greater than 0
-                    if ($price != '' && $price > 0) {
-                        array_push($reg_prices, $price);
-                    }
-                    if ($sale_price != '' && $sale_price > 0) {
-                        array_push($sale_prices, $sale_price);
-                    }
+                    $sale_price = (get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) != '') ? get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true) : '';
+                    // Add the regular price to the array
+                    array_push($reg_prices, $price);
+                    // Add the sale price to the array
+                    array_push($sale_prices, $sale_price);
                 }
-                // If there are no valid prices, return the original price
-                if (empty($reg_prices) && empty($sale_prices)) {
-                    return $price;
-                }
-                // If there are sale prices, return the minimum sale price
-                if (!empty($sale_prices)) {
+                // If there is at least one sale price and the minimum sale price is greater than 0, return the minimum sale price
+                if(!empty($sale_price) && min($sale_prices) > 0){
                     return min($sale_prices);
-                }
-                // Otherwise return the minimum regular price
-                return min($reg_prices);
+                // Otherwise, return the minimum regular price
+                }else{
+                    return min($reg_prices);
+                }      
             }
         }
         // If the current location is the default, or no location-specific price is found, return the original price
-        return $price;
+        return $price ;
     }
 
 	function nbt_override_wc_template($template, $template_name, $template_path) {
@@ -315,8 +290,8 @@ class nbtPublic{
 	
 	function yith_wapo_product_price($price, $product){
 		$location_price = $this->current_locations;
-		if ($this->current_locations != $this->default_location) {
-			if($product && $product->is_type('simple')){   
+		 if ($this->current_locations != $this->default_location) {
+	    	if($product && $product->is_type('simple')){   
 				$regular_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
 		        $sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
 	    			
@@ -339,7 +314,7 @@ class nbtPublic{
 	            }
 	             if (!empty($sale_price)) {
 	                return $sale_price;
-	            } elseif(!empty($regular_price)) {
+	            } elseif(!empty($sale_price)) {
 	                return $regular_price;
 	            }else{
 	                return $price;
@@ -350,51 +325,38 @@ class nbtPublic{
 	    if($product->is_type('variable')){
 	            
 	            $reg_price = '';
-	            if(!$product->is_on_sale()){
-	                return $price;
-	            } 
 	            $variations = $product->get_children();
 	            $reg_prices = array();
 	            $sale_prices = array();
 	            foreach ($variations as $value) {
-	                $single_variation = new WC_Product_Variation($value);
-	                $reg_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
-	                $sale_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
-	                
-	                if ($reg_price != '' && $reg_price > 0) {
-	                    array_push($reg_prices, $reg_price);
-	                }
-	                if ($sale_price != '' && $sale_price > 0) {
-	                    array_push($sale_prices, $sale_price);
+	                $single_variation=new WC_Product_Variation($value);
+	                $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
+	                if($price > 0) {
+	                    array_push($reg_prices, $price);
 	                }
 	            }
-	            
-	            if (empty($reg_prices) && empty($sale_prices)) {
-	                return $price;
+	            if(!empty($reg_prices)) {
+	                sort($reg_prices);
+	                $min_price = $reg_prices[0];
+	                $max_price = $reg_prices[count($reg_prices)-1];
+	                if($min_price == $max_price) {
+	                    $reg_price = wc_price($min_price);
+	                } else {
+	                    $reg_price = wc_format_price_range($min_price, $max_price);
+	                }
 	            }
-	            
-	            sort($reg_prices);
-	            sort($sale_prices);
-	            
-	            $min_reg_price = !empty($reg_prices) ? $reg_prices[0] : 0;
-	            $max_reg_price = !empty($reg_prices) ? $reg_prices[count($reg_prices)-1] : 0;
-	            $min_sale_price = !empty($sale_prices) ? $sale_prices[0] : 0;
-	            $max_sale_price = !empty($sale_prices) ? $sale_prices[count($sale_prices)-1] : 0;
-	            
-	            if ($min_reg_price == $max_reg_price) {
-	                $reg_price = wc_price($min_reg_price);
-	            } else {
-	                $reg_price = wc_format_price_range($min_reg_price, $max_reg_price);
+	            $sale_price = '';
+	            foreach ($variations as $value) {
+	                $single_variation=new WC_Product_Variation($value);
+	                $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
+	                if($price > 0) {
+	                    $sale_price = $price;
+	                }
 	            }
-	            
-	            if ($min_sale_price == $max_sale_price) {
-	                $sale_price = wc_price($min_sale_price);
-	            } else {
-	                $sale_price = wc_format_price_range($min_sale_price, $max_sale_price);
+	            if(!empty($sale_price)) {
+	                $suffix = $product->get_price_suffix($price);
+	                return wc_format_sale_price($reg_price, $sale_price).$suffix;
 	            }
-	            
-	            $suffix = $product->get_price_suffix($price);
-	            return wc_format_sale_price($reg_price, $sale_price).$suffix;
 	        }
 	     }  
 	  
@@ -437,37 +399,37 @@ class nbtPublic{
 
 			if ($product->is_type('variable')) {
 				$reg_price = '';
-				if (!$product->is_on_sale()) {
-					return $price;
-				}
-				if ($product->is_type('variable')) {
-					$variations = $product->get_children();
-					$reg_prices = array();
-					$sale_prices = array();
-					foreach ($variations as $value) {
-						$single_variation = new WC_Product_Variation($value);
-						array_push($reg_prices, $single_variation->get_regular_price());
-						array_push($sale_prices, $single_variation->get_price());
+				$variations = $product->get_children();
+				$reg_prices = array();
+				$sale_prices = array();
+				foreach ($variations as $value) {
+					$single_variation = new WC_Product_Variation($value);
+					$price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
+					if($price > 0) {
+						array_push($reg_prices, $price);
 					}
+				}
+				if(!empty($reg_prices)) {
 					sort($reg_prices);
-					sort($sale_prices);
-
 					$min_price = $reg_prices[0];
-					$max_price = $reg_prices[count($reg_prices) - 1];
-					if ($min_price == $max_price) {
+					$max_price = $reg_prices[count($reg_prices)-1];
+					if($min_price == $max_price) {
 						$reg_price = wc_price($min_price);
 					} else {
 						$reg_price = wc_format_price_range($min_price, $max_price);
 					}
-					$min_price = $sale_prices[0];
-					$max_price = $sale_prices[count($sale_prices) - 1];
-					if ($min_price == $max_price) {
-						$sale_price = wc_price($min_price);
-					} else {
-						$sale_price = wc_format_price_range($min_price, $max_price);
+				}
+				$sale_price = '';
+				foreach ($variations as $value) {
+					$single_variation = new WC_Product_Variation($value);
+					$price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
+					if($price > 0) {
+						$sale_price = $price;
 					}
+				}
+				if(!empty($sale_price)) {
 					$suffix = $product->get_price_suffix($price);
-					return wc_format_sale_price($reg_price, $sale_price) . $suffix;
+					return wc_format_sale_price($reg_price, $sale_price).$suffix;
 				}
 			}
 		}
@@ -1185,16 +1147,5 @@ class nbtPublic{
         </form>
         <?php
         return ob_get_clean();
-    }
-
-    /**
-     * Override WooCommerce price HTML for variable products to use location-specific price range
-     */
-    public function nbt_override_variable_price_html($price, $product) {
-        if ($product && $product->is_type('variable')) {
-            // Use the same logic as yith_wapo_product_price for variable products
-            return $this->yith_wapo_product_price($price, $product);
-        }
-        return $price;
     }
 }

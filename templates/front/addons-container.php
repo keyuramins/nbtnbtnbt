@@ -33,23 +33,6 @@ do_action( 'yith_wapo_before_main_container' );
 
 <!-- #yith-wapo-container -->
 <div id="yith-wapo-container" class="yith-wapo-container yith-wapo-form-style-<?php echo esc_html( $style_form_style ) ?>" data-product-price="<?php echo esc_attr( $product_price ); ?>" data-default-product-price="<?php echo esc_attr( $product_price ); ?>" data-product-id="<?php echo esc_attr( $product->get_id() )  ?>">
-
-	<?php 
-	//Hide our custom price block for simple products
-	// if($product->is_type('simple')){
-	// 	if(function_exists('get_price_html_display')) {
-	// 		echo '<div class="nbt_display_price">';
-	// 		echo get_price_html_display($product_price, $product);
-	// 		echo '<small class="woocommerce-price-suffix"> incl GST </small>';
-	// 		echo '</div>';
-	// 	} else {
-	// 		echo '<div class="nbt_display_price">';
-	// 		echo wc_price($product_price);
-	// 		echo '<small class="woocommerce-price-suffix"> incl GST </small>';
-	// 		echo '</div>';
-	// 	}
-	// }
-  	?>
 	<?php $instance->print_blocks();
     ?>
 </div>
