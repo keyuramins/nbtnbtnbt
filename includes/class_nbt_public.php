@@ -105,7 +105,7 @@ class nbtPublic{
 		            return sprintf('<ins>%s</ins>' . $product->get_price_suffix(), wc_price($regular_price));
 		        }
 			}
-	        
+	        elseif($product && $product->is_type('variation')){
 	        	error_log('NBT DEBUG: Showing price for variation ' . $product->get_id() . ' at location ' . $this->current_locations . ' (type: variation)');
 	        	if($this->current_locations != $this->default_location){
 	            	$regular_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
