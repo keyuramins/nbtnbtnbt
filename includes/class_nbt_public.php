@@ -123,9 +123,7 @@ class nbtPublic{
 	                return $price;
 	            }
 	        }
-			
-		
-	    if($product->is_type('variable')){
+	        elseif($product->is_type('variable')){
 	            error_log('NBT DEBUG: Showing price for variable product ' . $product->get_id() . ' at location ' . $this->current_locations . ' (type: variable)');
 	            if($this->current_locations != $this->default_location){
 	            	$variations = $product->get_children();
