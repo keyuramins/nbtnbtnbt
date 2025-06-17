@@ -34,6 +34,7 @@ class nbtPublic{
 		add_filter('woocommerce_locate_template', array($this, 'nbt_hide_billing_in_dashboard'), 99, 3);
 		// Remove Addresses tab from My Account
         add_filter('woocommerce_account_menu_items', array($this, 'nbt_remove_my_account_addresses_tab'), 99);
+        add_filter('woocommerce_get_price_html', array($this, 'nbt_override_variable_price_html'), 20, 2);
     }
 
 	function nbt_scripts() {
@@ -1184,5 +1185,16 @@ class nbtPublic{
         </form>
         <?php
         return ob_get_clean();
+    }
+
+    /**
+     * Override WooCommerce price HTML for variable products to use location-specific price range
+     */
+    public function nbt_override_variable_price_html($price, $product) {
+        if ($product && $product->is_type('variable')) {
+            // Use the same logic as yith_wapo_product_price for variable products
+            return $this->yith_wapo_product_price($price, $product);
+        }
+        return $price;
     }
 }
