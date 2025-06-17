@@ -93,7 +93,6 @@ class nbtPublic{
 	      	if($product && $product->is_type('simple')){   
 	    		echo ' ';
 	    		if($this->current_locations != $this->default_location){
-
 	    			 $regular_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_price', true);
 		        	$sale_price = get_post_meta($product->get_id(), '_'.$this->current_locations.'_sale_price', true);
 	    		}else{
@@ -124,7 +123,9 @@ class nbtPublic{
 	                return $price;
 	            }
 	        }
-	    	elseif($product->is_type('variable')){
+			
+		
+	        if($product->is_type('variable')){
 	            error_log('NBT DEBUG: Showing price for variable product ' . $product->get_id() . ' at location ' . $this->current_locations . ' (type: variable)');
 	            if($this->current_locations != $this->default_location){
 	            	$variations = $product->get_children();
@@ -132,19 +133,39 @@ class nbtPublic{
 		            $sale_prices = array();
 		            foreach ($variations as $value) {
 		                $single_variation = new WC_Product_Variation($value);
-		                $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
-		                if($price > 0) {
-		                    array_push($reg_prices, $price);
+		                $regular_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
+		                $sale_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
+		                
+		                if($regular_price > 0) {
+		                    array_push($reg_prices, $regular_price);
+		                }
+		                if($sale_price > 0) {
+		                    array_push($sale_prices, $sale_price);
 		                }
 		            }
+		            
 		            if(!empty($reg_prices)) {
 		                sort($reg_prices);
-		                $min_price = $reg_prices[0];
-		                $max_price = $reg_prices[count($reg_prices)-1];
-		                if($min_price == $max_price) {
-		                    return wc_price($min_price);
+		                $min_regular = $reg_prices[0];
+		                $max_regular = $reg_prices[count($reg_prices)-1];
+		                
+		                if(!empty($sale_prices)) {
+		                    sort($sale_prices);
+		                    $min_sale = $sale_prices[0];
+		                    $max_sale = $sale_prices[count($sale_prices)-1];
+		                    
+		                    // Format both regular and sale price ranges
+		                    $regular_range = $min_regular == $max_regular ? wc_price($min_regular) : wc_format_price_range($min_regular, $max_regular);
+		                    $sale_range = $min_sale == $max_sale ? wc_price($min_sale) : wc_format_price_range($min_sale, $max_sale);
+		                    
+		                    return sprintf('<del>%s</del> <ins>%s</ins>' . $product->get_price_suffix(), $regular_range, $sale_range);
 		                } else {
-		                    return wc_format_price_range($min_price, $max_price);
+		                    // Only show regular price range if no sale prices
+		                    if($min_regular == $max_regular) {
+		                        return wc_price($min_regular);
+		                    } else {
+		                        return wc_format_price_range($min_regular, $max_regular);
+		                    }
 		                }
 		            }
 		        }
