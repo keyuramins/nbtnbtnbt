@@ -79,7 +79,7 @@ jQuery( document ).ready(function($) {
                 // Position overlay over the addons container
                 var $container = $('#yith-wapo-container');
                 $container.css('position', 'relative');
-                $container.append(overlay);
+                //$container.append(overlay);
             }
         } else {
             $('#nbt-addon-overlay').remove();
