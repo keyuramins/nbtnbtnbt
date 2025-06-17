@@ -129,12 +129,11 @@ class nbtPublic{
 	    if($product->is_type('variable')){
 	            error_log('NBT DEBUG: Showing price for variable product ' . $product->get_id() . ' at location ' . $this->current_locations . ' (type: variable)');
 	            if($this->current_locations != $this->default_location){
-	            	$reg_price = '';
-		            $variations = $product->get_children();
+	            	$variations = $product->get_children();
 		            $reg_prices = array();
 		            $sale_prices = array();
 		            foreach ($variations as $value) {
-		                $single_variation=new WC_Product_Variation($value);
+		                $single_variation = new WC_Product_Variation($value);
 		                $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
 		                if($price > 0) {
 		                    array_push($reg_prices, $price);
@@ -145,22 +144,10 @@ class nbtPublic{
 		                $min_price = $reg_prices[0];
 		                $max_price = $reg_prices[count($reg_prices)-1];
 		                if($min_price == $max_price) {
-		                    $reg_price = wc_price($min_price);
+		                    return wc_price($min_price);
 		                } else {
-		                    $reg_price = wc_format_price_range($min_price, $max_price);
+		                    return wc_format_price_range($min_price, $max_price);
 		                }
-		            }
-		            $sale_price = '';
-		            foreach ($variations as $value) {
-		                $single_variation=new WC_Product_Variation($value);
-		                $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
-		                if($price > 0) {
-		                    $sale_price = $price;
-		                }
-		            }
-		            if(!empty($sale_price)) {
-		                $suffix = $product->get_price_suffix($price);
-		                return wc_format_sale_price($reg_price, $sale_price).$suffix;
 		            }
 		        }
 	        }
