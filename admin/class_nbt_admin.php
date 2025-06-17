@@ -121,15 +121,24 @@ class nbtAdmin{
             if ($product && $product->is_type('simple')) {
                 foreach($locations as $key => $value){
                     if ($key != ''){
-                        $_price = $_POST['_'.$key.'_price'] ?? '';
-                        if (!empty($_price)){
+                        // Handle regular price
+                        $_price = isset($_POST['_'.$key.'_price']) ? sanitize_text_field($_POST['_'.$key.'_price']) : null;
+                        if ($_price !== null && $_price !== '') {
                             update_post_meta($post_id, '_'.$key.'_price', esc_attr($_price));
                             error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_price=$_price");
+                        } else {
+                            delete_post_meta($post_id, '_'.$key.'_price');
+                            error_log("[NBT DEBUG] Deleted regular price meta for post_id $post_id: {$key}_price");
                         }
-                        $_sale_price = $_POST['_'.$key.'_sale_price'] ?? '';
-                        if (!empty($_sale_price)){
+
+                        // Handle sale price
+                        $_sale_price = isset($_POST['_'.$key.'_sale_price']) ? sanitize_text_field($_POST['_'.$key.'_sale_price']) : null;
+                        if ($_sale_price !== null && $_sale_price !== '') {
                             update_post_meta($post_id, '_'.$key.'_sale_price', $_sale_price);
                             error_log("[NBT DEBUG] Saved simple product meta for post_id $post_id: {$key}_sale_price=$_sale_price");
+                        } else {
+                            delete_post_meta($post_id, '_'.$key.'_sale_price');
+                            error_log("[NBT DEBUG] Deleted sale price meta for post_id $post_id: {$key}_sale_price");
                         }
                     }
                 }
@@ -160,17 +169,13 @@ class nbtAdmin{
                    $sale_price = isset($_POST['_'.$key.'_sale_price'][$variation_id]) ? sanitize_text_field($_POST['_'.$key.'_sale_price'][$variation_id]) : null;
                    if ($price !== null && $price !== '') {
                        update_post_meta($variation_id, '_'.$key.'_price', $price);
-                       error_log("[NBT DEBUG] Saved variation meta for variation_id $variation_id: {$key}_price=$price");
                    } else {
                        delete_post_meta($variation_id, '_'.$key.'_price');
-                       error_log("[NBT DEBUG] Deleted regular price meta for variation_id $variation_id: {$key}_price");
                    }
                    if ($sale_price !== null && $sale_price !== '') {
                        update_post_meta($variation_id, '_'.$key.'_sale_price', $sale_price);
-                       error_log("[NBT DEBUG] Saved variation meta for variation_id $variation_id: {$key}_sale_price=$sale_price");
                    } else {
                        delete_post_meta($variation_id, '_'.$key.'_sale_price');
-                       error_log("[NBT DEBUG] Deleted sale price meta for variation_id $variation_id: {$key}_sale_price");
                    }
                 }
             }
