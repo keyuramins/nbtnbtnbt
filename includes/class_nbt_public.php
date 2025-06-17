@@ -126,7 +126,7 @@ class nbtPublic{
 	        }
 			
 		
-	    	elseif($product->is_type('variable')){
+	    	if($product->is_type('variable')){
 	            error_log('NBT DEBUG: Showing price for variable product ' . $product->get_id() . ' at location ' . $this->current_locations . ' (type: variable)');
 	            if($this->current_locations != $this->default_location){
 	            	$variations = $product->get_children();
@@ -134,46 +134,19 @@ class nbtPublic{
 		            $sale_prices = array();
 		            foreach ($variations as $value) {
 		                $single_variation = new WC_Product_Variation($value);
-		                $regular_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
-		                $sale_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
-		                
-		                if($regular_price > 0) {
-		                    array_push($reg_prices, $regular_price);
-		                }
-		                if($sale_price > 0) {
-		                    array_push($sale_prices, $sale_price);
+		                $price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
+		                if($price > 0) {
+		                    array_push($reg_prices, $price);
 		                }
 		            }
-		            
 		            if(!empty($reg_prices)) {
 		                sort($reg_prices);
-		                $min_reg_price = $reg_prices[0];
-		                $max_reg_price = $reg_prices[count($reg_prices)-1];
-		                
-		                if(!empty($sale_prices)) {
-		                    sort($sale_prices);
-		                    $min_sale_price = $sale_prices[0];
-		                    $max_sale_price = $sale_prices[count($sale_prices)-1];
-		                    
-		                    // Format regular price range
-		                    $reg_price_html = $min_reg_price === $max_reg_price ? 
-		                        wc_price($min_reg_price) : 
-		                        wc_format_price_range($min_reg_price, $max_reg_price);
-		                        
-		                    // Format sale price range
-		                    $sale_price_html = $min_sale_price === $max_sale_price ? 
-		                        wc_price($min_sale_price) : 
-		                        wc_format_price_range($min_sale_price, $max_sale_price);
-		                        
-		                    return sprintf('<del>%s</del> <ins>%s</ins>' . $product->get_price_suffix(), 
-		                        $reg_price_html, 
-		                        $sale_price_html
-		                    );
+		                $min_price = $reg_prices[0];
+		                $max_price = $reg_prices[count($reg_prices)-1];
+		                if($min_price == $max_price) {
+		                    return wc_price($min_price);
 		                } else {
-		                    // Only show regular price range if no sale prices
-		                    return ($min_reg_price === $max_reg_price) ? 
-		                        wc_price($min_reg_price) : 
-		                        wc_format_price_range($min_reg_price, $max_reg_price);
+		                    return wc_format_price_range($min_price, $max_price);
 		                }
 		            }
 		        }
