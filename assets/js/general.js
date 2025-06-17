@@ -56,10 +56,6 @@ jQuery( document ).ready(function($) {
 
     $('.variations_form select').on('change', function() {
         var productVariations = JSON.parse($(".variations_form").attr("data-product_variations"));
-        console.log(productVariations);
-        // Fetch and update the prices dynamically here
-        // This could involve an AJAX request to retrieve updated prices for the selected variation
-        // Update the displayed prices on the page
     });
 
     // Location selector submit on change
@@ -93,8 +89,9 @@ jQuery( document ).ready(function($) {
         return variationId && variationId !== '' && variationId !== '0';
     }
 
-    // Only apply for variable products with addons
-    if ($('.variations_form').length && $('#yith-wapo-container').length) {
+    // Only apply for variable products WITH addons (actual addon fields present)
+    var hasAddons = $('.variations_form').length && $('#yith-wapo-container .yith-wapo-addon:visible :input, #yith-wapo-container .yith-wapo-addon:visible select, #yith-wapo-container .yith-wapo-addon:visible textarea').length > 0;
+    if (hasAddons) {
         // On page load
         setAddonsEnabled(isVariationSelected());
         // On variation selection
