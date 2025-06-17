@@ -127,48 +127,94 @@ class nbtPublic{
 		
 	        if($product->is_type('variable')){
 	            error_log('NBT DEBUG: Showing price for variable product ' . $product->get_id() . ' at location ' . $this->current_locations . ' (type: variable)');
-	            if($this->current_locations != $this->default_location){
-	            	$variations = $product->get_children();
-		            $reg_prices = array();
-		            $sale_prices = array();
-		            foreach ($variations as $value) {
-		                $single_variation = new WC_Product_Variation($value);
-		                $regular_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
-		                $sale_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
-		                
-		                if($regular_price > 0) {
-		                    array_push($reg_prices, $regular_price);
-		                }
-		                if($sale_price > 0) {
-		                    array_push($sale_prices, $sale_price);
-		                }
-		            }
-		            
-		            if(!empty($reg_prices)) {
-		                sort($reg_prices);
-		                $min_regular = $reg_prices[0];
-		                $max_regular = $reg_prices[count($reg_prices)-1];
-		                
-		                if(!empty($sale_prices)) {
-		                    sort($sale_prices);
-		                    $min_sale = $sale_prices[0];
-		                    $max_sale = $sale_prices[count($sale_prices)-1];
-		                    
-		                    // Format both regular and sale price ranges
-		                    $regular_range = $min_regular == $max_regular ? wc_price($min_regular) : wc_format_price_range($min_regular, $max_regular);
-		                    $sale_range = $min_sale == $max_sale ? wc_price($min_sale) : wc_format_price_range($min_sale, $max_sale);
-		                    
-		                    return sprintf('<del>%s</del> <ins>%s</ins>' . $product->get_price_suffix(), $regular_range, $sale_range);
-		                } else {
-		                    // Only show regular price range if no sale prices
-		                    if($min_regular == $max_regular) {
-		                        return wc_price($min_regular);
-		                    } else {
-		                        return wc_format_price_range($min_regular, $max_regular);
-		                    }
-		                }
-		            }
-		        }
+	            $variations = $product->get_available_variations();
+	            if (empty($variations)) {
+	                return $price; // Return original price if no variations available
+	            }
+
+	            $reg_prices = array();
+	            $sale_prices = array();
+	            $has_sale = false;
+
+	            foreach ($variations as $variation) {
+	                // Skip if variation is not purchasable or out of stock
+	                if (empty($variation['variation_id']) || !$variation['is_purchasable']) {
+	                    continue;
+	                }
+
+	                $single_variation = new WC_Product_Variation($variation['variation_id']);
+	                
+	                if($this->current_locations != $this->default_location){
+	                    // Custom location prices
+	                    $regular_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_price', true);
+	                    $sale_price = get_post_meta($single_variation->get_id(), '_'.$this->current_locations.'_sale_price', true);
+	                } else {
+	                    // Default location prices
+	                    $regular_price = $single_variation->get_regular_price();
+	                    $sale_price = $single_variation->get_sale_price();
+	                }
+	                
+	                // Convert prices to float and validate
+	                $regular_price = is_numeric($regular_price) ? floatval($regular_price) : 0;
+	                $sale_price = is_numeric($sale_price) ? floatval($sale_price) : 0;
+	                
+	                // Only add regular price if it's valid
+	                if($regular_price > 0) {
+	                    $reg_prices[] = $regular_price;
+	                    
+	                    // Only add sale price if it's valid and less than regular price
+	                    if($sale_price > 0 && $sale_price < $regular_price) {
+	                        $sale_prices[] = $sale_price;
+	                        $has_sale = true;
+	                    }
+	                }
+	            }
+	            
+	            // If no valid prices found, return original price
+	            if(empty($reg_prices)) {
+	                return $price;
+	            }
+	            
+	            // Sort prices
+	            sort($reg_prices);
+	            $min_regular = $reg_prices[0];
+	            $max_regular = $reg_prices[count($reg_prices)-1];
+	            
+	            // Get price suffix once
+	            $price_suffix = $product->get_price_suffix();
+	            
+	            // If we have valid sale prices
+	            if($has_sale && !empty($sale_prices)) {
+	                sort($sale_prices);
+	                $min_sale = $sale_prices[0];
+	                $max_sale = $sale_prices[count($sale_prices)-1];
+	                
+	                // Format price ranges
+	                $regular_range = $min_regular == $max_regular 
+	                    ? wc_price($min_regular) 
+	                    : wc_format_price_range($min_regular, $max_regular);
+	                    
+	                $sale_range = $min_sale == $max_sale 
+	                    ? wc_price($min_sale) 
+	                    : wc_format_price_range($min_sale, $max_sale);
+	                
+	                // Return with strikethrough for regular price range
+	                return sprintf('<del>%s</del> <ins>%s</ins>%s', 
+	                    $regular_range, 
+	                    $sale_range,
+	                    $price_suffix
+	                );
+	            } else {
+	                // Only show regular price range if no sale prices
+	                $price_html = $min_regular == $max_regular 
+	                    ? wc_price($min_regular) 
+	                    : wc_format_price_range($min_regular, $max_regular);
+	                    
+	                return sprintf('<ins>%s</ins>%s', 
+	                    $price_html,
+	                    $price_suffix
+	                );
+	            }
 	        }
 	    return $price;
 	}
