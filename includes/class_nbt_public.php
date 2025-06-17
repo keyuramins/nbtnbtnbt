@@ -170,11 +170,10 @@ class nbtPublic{
 		            }
 		        }
 	        }
-	       
-	    // Return regular price if not on sale.
 	    return $price;
 	}
 	
+
     // Get the correct price for a product or variation based on the current location
     function nbt_get_price( $price, $product, $variation ) {
         // Ensure $variation is a valid WC_Product_Variation object
